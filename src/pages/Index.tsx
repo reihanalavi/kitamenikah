@@ -10,9 +10,9 @@ import Footer from "@/components/layout/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-yellow-50">
+    <div className="min-h-screen bg-white">
       <Navigation />
-      <div className="pt-16"> {/* Add padding top to account for fixed navigation */}
+      <div className="pt-16">
         <HeroSection />
         <FeaturesSection />
         <TemplatesSection />

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -52,58 +51,56 @@ const pricingPlans = [
 
 const PricingSection = () => {
   return (
-    <section className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+    <section id="pricing" className="py-24 sm:py-32 bg-gray-50">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="text-base font-semibold leading-7 text-slate-600">Pricing</h2>
+          <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
             Pilih Paket Sesuai Kebutuhan
-          </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Dapatkan undangan pernikahan digital terbaik dengan harga yang terjangkau
           </p>
         </div>
-
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">
+          Dapatkan undangan pernikahan digital terbaik dengan harga yang terjangkau
+        </p>
+        
+        <div className="isolate mx-auto mt-16 grid max-w-md grid-cols-1 gap-y-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
           {pricingPlans.map((plan, index) => (
-            <Card key={index} className={`relative ${plan.popular ? 'border-pink-500 border-2 shadow-xl scale-105' : 'shadow-lg'}`}>
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                    Paling Populer
-                  </span>
+            <div key={index} className={`flex flex-col justify-between rounded-3xl bg-white p-8 ring-1 xl:p-10 ${
+              plan.popular 
+                ? 'ring-2 ring-slate-600 lg:z-10 lg:rounded-b-none' 
+                : 'ring-gray-200 lg:mt-8 lg:rounded-t-none'
+            }`}>
+              <div>
+                <div className="flex items-center justify-between gap-x-4">
+                  <h3 className="text-lg font-semibold leading-8 text-slate-900">
+                    {plan.name}
+                  </h3>
+                  {plan.popular && (
+                    <p className="rounded-full bg-slate-600/10 px-2.5 py-1 text-xs font-semibold leading-5 text-slate-600">
+                      Paling Populer
+                    </p>
+                  )}
                 </div>
-              )}
-              
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
-                </div>
-                <CardDescription className="text-lg mt-2">{plan.description}</CardDescription>
-              </CardHeader>
-              
-              <CardContent className="space-y-6">
-                <ul className="space-y-3">
+                <p className="mt-4 text-sm leading-6 text-gray-600">{plan.description}</p>
+                <p className="mt-6 flex items-baseline gap-x-1">
+                  <span className="text-4xl font-bold tracking-tight text-gray-900">{plan.price}</span>
+                </p>
+                <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-600">
                   {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center">
-                      <span className="text-green-500 mr-3">✓</span>
-                      <span className="text-gray-600">{feature}</span>
+                    <li key={featureIndex} className="flex gap-x-3">
+                      <span className="text-slate-600">✓</span>
+                      {feature}
                     </li>
                   ))}
                 </ul>
-                
-                <Button 
-                  className={`w-full py-3 text-lg ${
-                    plan.popular 
-                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700' 
-                      : ''
-                  }`}
-                  variant={plan.popular ? 'default' : 'outline'}
-                >
-                  Pilih Paket
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+              <Button 
+                className={`mt-8 ${plan.popular ? '' : 'bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:ring-slate-300'}`}
+                variant={plan.popular ? 'default' : 'outline'}
+              >
+                Pilih Paket
+              </Button>
+            </div>
           ))}
         </div>
       </div>

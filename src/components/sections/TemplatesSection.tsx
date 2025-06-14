@@ -31,40 +31,43 @@ const templates = [
 
 const TemplatesSection = () => {
   return (
-    <section className="py-20">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+    <section id="templates" className="py-24 sm:py-32 bg-gray-50">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             Template Pilihan Terbaik
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="mt-6 text-lg leading-8 text-gray-600">
             Pilih dari berbagai template cantik yang telah dirancang khusus untuk hari bahagia Anda
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-4">
           {templates.map((template) => (
-            <Card key={template.id} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="aspect-[3/4] overflow-hidden">
+            <article key={template.id} className="flex flex-col items-start">
+              <div className="relative w-full">
                 <img 
                   src={template.image} 
                   alt={template.name}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  className="aspect-[16/20] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/4]"
                 />
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
               </div>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-2">{template.name}</h3>
-                <p className="text-2xl font-bold text-pink-600 mb-4">{template.price}</p>
-                <div className="space-y-2">
-                  <Button variant="outline" className="w-full">
+              <div className="max-w-xl pt-6">
+                <h3 className="text-lg font-semibold leading-6 text-gray-900">
+                  {template.name}
+                </h3>
+                <p className="mt-2 text-2xl font-bold text-gray-900">{template.price}</p>
+                <div className="mt-4 flex gap-x-3">
+                  <Button variant="outline" size="sm" className="flex-1">
                     Live Preview
                   </Button>
-                  <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700">
+                  <Button size="sm" className="flex-1">
                     Beli Sekarang
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </article>
           ))}
         </div>
       </div>

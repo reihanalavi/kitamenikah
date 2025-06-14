@@ -16,93 +16,115 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-50 border-b border-gray-100">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo & Brand */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white" />
+    <header className="fixed inset-x-0 top-0 z-50 bg-white/95 backdrop-blur-sm">
+      <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
+        <div className="flex lg:flex-1">
+          <a href="#" className="-m-1.5 p-1.5">
+            <span className="sr-only">KitaMenikah</span>
+            <div className="flex items-center space-x-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-600">
+                <Heart className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-xl font-bold text-gray-900">KitaMenikah</span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-              KitaMenikah
-            </span>
-          </div>
-
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <button
-              onClick={() => scrollToSection('features')}
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
-              Fitur
-            </button>
-            <button
-              onClick={() => scrollToSection('templates')}
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
-              Template
-            </button>
-            <button
-              onClick={() => scrollToSection('pricing')}
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
-              Biaya
-            </button>
-          </div>
-
-          {/* Auth Button */}
-          <div className="hidden md:block">
-            <Link to="/auth">
-              <Button variant="outline" size="sm">
-                Masuk / Daftar
-              </Button>
-            </Link>
-          </div>
-
-          {/* Mobile Menu Button */}
+          </a>
+        </div>
+        
+        <div className="flex lg:hidden">
           <button
-            className="md:hidden p-2"
+            type="button"
+            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <span className="sr-only">Open main menu</span>
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100 py-4">
-            <div className="flex flex-col space-y-4">
+        
+        <div className="hidden lg:flex lg:gap-x-12">
+          <button
+            onClick={() => scrollToSection('features')}
+            className="text-sm font-semibold leading-6 text-gray-900 hover:text-slate-600"
+          >
+            Fitur
+          </button>
+          <button
+            onClick={() => scrollToSection('templates')}
+            className="text-sm font-semibold leading-6 text-gray-900 hover:text-slate-600"
+          >
+            Template
+          </button>
+          <button
+            onClick={() => scrollToSection('pricing')}
+            className="text-sm font-semibold leading-6 text-gray-900 hover:text-slate-600"
+          >
+            Biaya
+          </button>
+        </div>
+        
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+          <Link to="/auth">
+            <Button variant="outline" size="sm">
+              Masuk / Daftar
+            </Button>
+          </Link>
+        </div>
+      </nav>
+      
+      {isMenuOpen && (
+        <div className="lg:hidden">
+          <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-600">
+                  <Heart className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-xl font-bold text-gray-900">KitaMenikah</span>
+              </div>
               <button
-                onClick={() => scrollToSection('features')}
-                className="text-left text-gray-700 hover:text-blue-600 font-medium transition-colors px-4 py-2"
+                type="button"
+                className="-m-2.5 rounded-md p-2.5 text-gray-700"
+                onClick={() => setIsMenuOpen(false)}
               >
-                Fitur
+                <span className="sr-only">Close menu</span>
+                <X className="h-6 w-6" />
               </button>
-              <button
-                onClick={() => scrollToSection('templates')}
-                className="text-left text-gray-700 hover:text-blue-600 font-medium transition-colors px-4 py-2"
-              >
-                Template
-              </button>
-              <button
-                onClick={() => scrollToSection('pricing')}
-                className="text-left text-gray-700 hover:text-blue-600 font-medium transition-colors px-4 py-2"
-              >
-                Biaya
-              </button>
-              <div className="px-4">
-                <Link to="/auth">
-                  <Button variant="outline" size="sm" className="w-full">
-                    Masuk / Daftar
-                  </Button>
-                </Link>
+            </div>
+            <div className="mt-6 flow-root">
+              <div className="-my-6 divide-y divide-gray-500/10">
+                <div className="space-y-2 py-6">
+                  <button
+                    onClick={() => scrollToSection('features')}
+                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                  >
+                    Fitur
+                  </button>
+                  <button
+                    onClick={() => scrollToSection('templates')}
+                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                  >
+                    Template
+                  </button>
+                  <button
+                    onClick={() => scrollToSection('pricing')}
+                    className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                  >
+                    Biaya
+                  </button>
+                </div>
+                <div className="py-6">
+                  <Link to="/auth">
+                    <Button variant="outline" size="sm" className="w-full">
+                      Masuk / Daftar
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        )}
-      </div>
-    </nav>
+        </div>
+      )}
+    </header>
   );
 };
 
