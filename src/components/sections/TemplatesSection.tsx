@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 const templates = [
   {
@@ -69,6 +70,14 @@ const TemplatesSection = () => {
               </div>
             </article>
           ))}
+        </div>
+
+        <div className="text-center mt-16">
+          <Link to="/templates">
+            <Button size="lg" variant="outline">
+              Lihat Template Lebih Banyak
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
