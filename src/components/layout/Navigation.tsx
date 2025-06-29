@@ -20,10 +20,10 @@ const Navigation = () => {
       <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
           <a href="#" className="-m-1.5 p-1.5">
-            <span className="sr-only">BahteraKita</span>
+            <span className="sr-only">SekapurSirih</span>
             <img 
-              src="https://jjpfoguzwsoweehfzmxi.supabase.co/storage/v1/object/sign/kitamenikah/bahterakita-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV80MWJkZjViNS0zNDZkLTQyYWQtOTg5ZS1iMTI0NDgxYzIxY2IiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJraXRhbWVuaWthaC9iYWh0ZXJha2l0YS1sb2dvLnBuZyIsImlhdCI6MTc1MTIwMDM5NiwiZXhwIjoxNzgyNzM2Mzk2fQ.BOoDuEDYABUBgzd_Luvw5hbsIkkLMgIY3HFEynbi3D0" 
-              alt="BahteraKita"
+              src="https://jjpfoguzwsoweehfzmxi.supabase.co/storage/v1/object/sign/kitamenikah/sekapursirih-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV80MWJkZjViNS0zNDZkLTQyYWQtOTg5ZS1iMTI0NDgxYzIxY2IiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJraXRhbWVuaWthaC9zZWthcHVyc2lyaWgtbG9nby5wbmciLCJpYXQiOjE3NTEyMjMxNTMsImV4cCI6MTc4Mjc1OTE1M30.Q2C1Zhm-4GeCdwx_vLw2_oM0oKh4vwoi9AAbcZTw3fc" 
+              alt="SekapurSirih"
               className="h-8 w-auto"
             />
           </a>
@@ -68,7 +68,7 @@ const Navigation = () => {
             <div className="flex items-center justify-between">
               <img 
                 src="/lovable-uploads/542e45ab-08df-4971-a4ec-d7558399992d.png" 
-                alt="BahteraKita"
+                alt="SekapurSirih"
                 className="h-8 w-auto"
               />
               <button

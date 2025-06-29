@@ -14,7 +14,7 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="text-3xl font-bold text-gray-900 hover:text-slate-700 transition-colors">
-            BahteraKita
+            SekapurSirih
           </Link>
           <p className="text-gray-600 mt-2">Platform Undangan Pernikahan Digital</p>
         </div>

@@ -16,11 +16,11 @@ const Footer = () => {
   };
 
   const handleEmailContact = () => {
-    window.location.href = 'mailto:undanganbahterakitacom@gmail.com';
+    window.location.href = 'mailto:undangansekapursirihid@gmail.com';
   };
 
   const handleInstagramContact = () => {
-    window.open('https://www.instagram.com/bahterakitacom/', '_blank');
+    window.open('https://www.instagram.com/sekapursirihid/', '_blank');
   };
 
   return (
@@ -46,8 +46,8 @@ const Footer = () => {
           >
             <div className="flex items-center space-x-2">
               <img 
-                src="https://jjpfoguzwsoweehfzmxi.supabase.co/storage/v1/object/sign/kitamenikah/bahterakita-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV80MWJkZjViNS0zNDZkLTQyYWQtOTg5ZS1iMTI0NDgxYzIxY2IiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJraXRhbWVuaWthaC9iYWh0ZXJha2l0YS1sb2dvLnBuZyIsImlhdCI6MTc1MTIwMDM5NiwiZXhwIjoxNzgyNzM2Mzk2fQ.BOoDuEDYABUBgzd_Luvw5hbsIkkLMgIY3HFEynbi3D0" 
-                alt="BahteraKita"
+                src="https://jjpfoguzwsoweehfzmxi.supabase.co/storage/v1/object/sign/kitamenikah/sekapursirih-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV80MWJkZjViNS0zNDZkLTQyYWQtOTg5ZS1iMTI0NDgxYzIxY2IiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJraXRhbWVuaWthaC9zZWthcHVyc2lyaWgtbG9nby5wbmciLCJpYXQiOjE3NTEyMjMxNTMsImV4cCI6MTc4Mjc1OTE1M30.Q2C1Zhm-4GeCdwx_vLw2_oM0oKh4vwoi9AAbcZTw3fc" 
+                alt="SekapurSirih"
                 className="h-8 w-auto brightness-0 invert"
               />
             </div>
@@ -107,7 +107,7 @@ const Footer = () => {
                     className="flex items-center gap-2 text-sm leading-6 text-gray-300 hover:text-white"
                   >
                     <Mail className="h-4 w-4" />
-                    undanganbahterakitacom@gmail.com
+                    undangansekapursirihid@gmail.com
                   </button>
                 </li> */}
                 <li>
@@ -127,7 +127,7 @@ const Footer = () => {
                     className="flex items-center gap-2 text-sm leading-6 text-gray-300 hover:text-white"
                   >
                     <Instagram className="h-4 w-4" />
-                    @bahterakitacom
+                    @sekapursirihid
                   </button>
                 </li>
               </ul>
@@ -142,7 +142,7 @@ const Footer = () => {
           viewport={{ once: true }}
         >
           <p className="text-xs leading-5 text-gray-400">
-            &copy; 2025 BahteraKita. All rights reserved.
+            &copy; 2025 SekapurSirih. All rights reserved.
           </p>
         </motion.div>
       </div>
