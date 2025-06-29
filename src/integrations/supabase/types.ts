@@ -247,11 +247,65 @@ export type Database = {
           },
         ]
       }
+      Pricing: {
+        Row: {
+          created_at: string
+          deskripsi_paket: string
+          harga_paket: number
+          id: number
+          paket: string
+        }
+        Insert: {
+          created_at?: string
+          deskripsi_paket: string
+          harga_paket: number
+          id?: number
+          paket: string
+        }
+        Update: {
+          created_at?: string
+          deskripsi_paket?: string
+          harga_paket?: number
+          id?: number
+          paket?: string
+        }
+        Relationships: []
+      }
+      PricingBenefit: {
+        Row: {
+          benefit: string | null
+          created_at: string
+          id: number
+          id_pricing: number | null
+        }
+        Insert: {
+          benefit?: string | null
+          created_at?: string
+          id?: number
+          id_pricing?: number | null
+        }
+        Update: {
+          benefit?: string | null
+          created_at?: string
+          id?: number
+          id_pricing?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "PricingBenefit_id_pricing_fkey"
+            columns: ["id_pricing"]
+            isOneToOne: false
+            referencedRelation: "Pricing"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Template: {
         Row: {
           createdAt: string
           id: string
           name: string
+          photo_url: string | null
           previewUrl: string
           price: number
         }
@@ -259,6 +313,7 @@ export type Database = {
           createdAt?: string
           id: string
           name: string
+          photo_url?: string | null
           previewUrl: string
           price: number
         }
@@ -266,6 +321,7 @@ export type Database = {
           createdAt?: string
           id?: string
           name?: string
+          photo_url?: string | null
           previewUrl?: string
           price?: number
         }
