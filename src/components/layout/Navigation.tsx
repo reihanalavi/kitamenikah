@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Heart, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Navigation = () => {
@@ -21,12 +21,11 @@ const Navigation = () => {
         <div className="flex lg:flex-1">
           <a href="#" className="-m-1.5 p-1.5">
             <span className="sr-only">KitaMenikah</span>
-            <div className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-600">
-                <Heart className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">KitaMenikah</span>
-            </div>
+            <img 
+              src="/lovable-uploads/542e45ab-08df-4971-a4ec-d7558399992d.png" 
+              alt="KitaMenikah"
+              className="h-8 w-auto"
+            />
           </a>
         </div>
         
@@ -61,26 +60,17 @@ const Navigation = () => {
             Biaya
           </button>
         </div>
-        
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <Link to="/auth">
-            <Button variant="outline" size="sm">
-              Masuk / Daftar
-            </Button>
-          </Link>
-        </div>
       </nav>
       
       {isMenuOpen && (
         <div className="lg:hidden">
           <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-600">
-                  <Heart className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-xl font-bold text-gray-900">KitaMenikah</span>
-              </div>
+              <img 
+                src="/lovable-uploads/542e45ab-08df-4971-a4ec-d7558399992d.png" 
+                alt="KitaMenikah"
+                className="h-8 w-auto"
+              />
               <button
                 type="button"
                 className="-m-2.5 rounded-md p-2.5 text-gray-700"
@@ -111,13 +101,6 @@ const Navigation = () => {
                   >
                     Biaya
                   </button>
-                </div>
-                <div className="py-6">
-                  <Link to="/auth">
-                    <Button variant="outline" size="sm" className="w-full">
-                      Masuk / Daftar
-                    </Button>
-                  </Link>
                 </div>
               </div>
             </div>

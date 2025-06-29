@@ -19,14 +19,16 @@ const HeroSection = () => {
                 KitaMenikah
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-600">
-                Platform terdepan untuk membuat undangan pernikahan digital yang personal dan berkesan
+                Undangan digital personal, dibuat khusus untukmu.
               </p>
               <p className="mt-4 text-base leading-7 text-gray-500">
-                Buat website undangan pernikahan impian Anda dengan mudah. Pilih template favorit, 
-                personalisasi sesuai keinginan, dan bagikan kepada orang terkasih.
+                Tak perlu repot desain sendiri. Cukup kirim data, kami bantu wujudkan undangan pernikahan digital yang elegan, personal, dan siap dibagikan.
               </p>
               <div className="mt-10 flex items-center gap-x-6">
-                <Button size="lg">
+                <Button 
+                  size="lg"
+                  onClick={() => scrollToSection('pricing')}
+                >
                   Mulai Sekarang
                 </Button>
                 <Button 
@@ -42,7 +44,7 @@ const HeroSection = () => {
           <div className="flex items-center justify-center lg:justify-end">
             <div className="relative">
               <img 
-                src="https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=800&fit=crop" 
+                src="/lovable-uploads/9c420be1-90d0-472c-b397-b6f9c29d4de8.png" 
                 alt="Mockup smartphone undangan digital"
                 className="w-full max-w-sm rounded-2xl bg-gray-900/5 shadow-2xl ring-1 ring-gray-900/10"
               />

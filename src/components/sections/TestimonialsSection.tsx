@@ -1,12 +1,9 @@
 
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { useEffect } from "react";
-import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 
 const testimonials = [
@@ -24,6 +21,16 @@ const testimonials = [
     name: "Maya & Rizky",
     content: "Pelayanannya excellent dan hasilnya melebihi ekspektasi. Highly recommended untuk calon pengantin!",
     rating: 5
+  },
+  {
+    name: "Andi & Sari",
+    content: "Proses pembuatannya cepat dan hasilnya sangat memuaskan. Tim KitaMenikah sangat responsif dan profesional.",
+    rating: 5
+  },
+  {
+    name: "Rio & Fitri",
+    content: "Undangan digitalnya elegant banget dan mudah dibagikan ke keluarga dan teman-teman. Terima kasih KitaMenikah!",
+    rating: 5
   }
 ];
 
@@ -38,11 +45,11 @@ const TestimonialsSection = () => {
           </p>
         </div>
         
-        <div className="mx-auto mt-16 max-w-4xl">
+        <div className="mt-16">
           <Carousel
             plugins={[
               Autoplay({
-                delay: 4000,
+                delay: 3000,
               }),
             ]}
             opts={{
