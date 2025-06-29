@@ -17,7 +17,7 @@ const PricingSection = () => {
       <section id="pricing" className="py-24 sm:py-32 bg-gray-50">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
-            <h2 className="text-base font-semibold leading-7 text-slate-600">Pricing</h2>
+            <h2 className="text-base font-semibold leading-7 text-slate-600 select-none">Pricing</h2>
             <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl select-none">
               Pilih Paket Sesuai Kebutuhan
             </p>
@@ -65,7 +65,7 @@ const PricingSection = () => {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-base font-semibold leading-7 text-slate-600">Pricing</h2>
+          <h2 className="text-base font-semibold leading-7 text-slate-600 select-none">Pricing</h2>
           <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl select-none">
             Pilih Paket Sesuai Kebutuhan
           </p>
