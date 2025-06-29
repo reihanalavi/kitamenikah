@@ -1,9 +1,13 @@
+"use client";
 
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform, useAnimationFrame } from "framer-motion";
+import { useRef } from "react";
 import { useTestimonials } from "@/hooks/useTestimonials";
 
 const TestimonialsSection = () => {
   const { data: testimonials, isLoading, error } = useTestimonials();
+  const baseX = useMotionValue(0);
+  const containerRef = useRef(null);
 
   if (isLoading) {
     return (
@@ -29,8 +33,18 @@ const TestimonialsSection = () => {
     );
   }
 
-  // Duplicate testimonials to create seamless loop
-  const duplicatedTestimonials = [...testimonials, ...testimonials];
+  // Duplikat banyak biar panjang scroll cukup untuk seamless
+  const duplicatedTestimonials = [...testimonials, ...testimonials, ...testimonials];
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const x = useTransform(baseX, (v) => `${v}px`);
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useAnimationFrame((t, delta) => {
+    const speed = 0.9; // Semakin kecil semakin lambat (10% kecepatan normal)
+    const prev = baseX.get(); // Ambil nilai sekarang
+    const next = (prev - speed * (delta / 16)) % (duplicatedTestimonials.length * 384);
+    baseX.set(next);
+  });
 
   return (
     <motion.section 
@@ -53,45 +67,29 @@ const TestimonialsSection = () => {
             Apa Kata Mereka Setelah Lihat Preview Kami?
           </p>
         </motion.div>
-        
-        <div className="mt-16 relative">
-          <div className="flex overflow-hidden w-full">
-            <motion.div
-              className="flex gap-6"
-              animate={{
-                x: [0, -100 * testimonials.length + '%']
-              }}
-              transition={{
-                x: {
-                  repeat: Infinity,
-                  repeatType: "loop",
-                  duration: testimonials.length * 8,
-                  ease: "linear",
-                },
-              }}
-              style={{ width: `${duplicatedTestimonials.length * 400}px` }}
-            >
-              {duplicatedTestimonials.map((testimonial, index) => (
-                <div key={`${testimonial.id}-${index}`} className="flex-shrink-0 w-96">
-                  <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6 h-full">
-                    <blockquote className="text-gray-900">
-                      <p>"{testimonial.message}"</p>
-                    </blockquote>
-                    <figcaption className="mt-6 flex items-center gap-x-4">
-                      <div className="flex-1">
-                        <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                        <div className="flex mt-2">
-                          {[...Array(testimonial['rating-star'])].map((_, i) => (
-                            <span key={i} className="text-yellow-400">★</span>
-                          ))}
-                        </div>
+
+        <div className="relative mt-16 overflow-hidden w-full" ref={containerRef}>
+          <motion.div className="flex gap-6" style={{ x }}>
+            {duplicatedTestimonials.map((testimonial, index) => (
+              <div key={`${testimonial.id}-${index}`} className="flex-shrink-0 w-96">
+                <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6 h-full">
+                  <blockquote className="text-gray-900">
+                    <p>{testimonial.message}</p>
+                  </blockquote>
+                  <figcaption className="mt-6 flex items-center gap-x-4">
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                      <div className="flex mt-2">
+                        {[...Array(testimonial["rating-star"])].map((_, i) => (
+                          <span key={i} className="text-yellow-400">★</span>
+                        ))}
                       </div>
-                    </figcaption>
-                  </figure>
-                </div>
-              ))}
-            </motion.div>
-          </div>
+                    </div>
+                  </figcaption>
+                </figure>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </div>
     </motion.section>
