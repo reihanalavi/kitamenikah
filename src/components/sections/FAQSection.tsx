@@ -5,31 +5,35 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
-const faqs = [
-  {
-    question: "Berapa lama waktu yang dibutuhkan untuk membuat undangan?",
-    answer: "Setelah pembelian template dan pengisian data, undangan Anda akan siap dalam 1-2 hari kerja. Untuk revisi, kami memberikan waktu hingga 3x revisi gratis."
-  },
-  {
-    question: "Apakah bisa menambahkan musik sendiri?",
-    answer: "Ya, Anda bisa mengunggah file musik favorit Anda dalam format MP3. Kami juga menyediakan koleksi musik romantis yang bisa dipilih."
-  },
-  {
-    question: "Bagaimana cara membagikan undangan kepada tamu?",
-    answer: "Undangan digital akan tersedia dalam bentuk link website yang bisa dibagikan melalui WhatsApp, email, atau media sosial lainnya."
-  },
-  {
-    question: "Apakah ada batasan jumlah tamu?",
-    answer: "Tidak ada batasan jumlah tamu. Anda bisa mengundang sebanyak mungkin orang dengan satu undangan digital."
-  },
-  {
-    question: "Bisakah mengedit undangan setelah dipublish?",
-    answer: "Ya, Anda masih bisa melakukan perubahan pada informasi acara, galeri foto, dan detail lainnya bahkan setelah undangan dipublish."
-  }
-];
+import { useFaqs } from "@/hooks/useFaqs";
 
 const FAQSection = () => {
+  const { data: faqs, isLoading, error } = useFaqs();
+
+  if (isLoading) {
+    return (
+      <section className="py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="flex justify-center">
+            <p className="text-gray-600">Loading faqs...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !faqs) {
+    return (
+      <section className="py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="flex justify-center">
+            <p className="text-red-600">Error loading faqs. Please try again later.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">

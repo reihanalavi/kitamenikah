@@ -93,6 +93,8 @@ const TemplatesSection = () => {
                         Rp {template.price.toLocaleString('id-ID')}
                       </p>
                       <div className="mt-4 flex gap-x-3">
+                        { (template.previewUrl || template.previewUrl != '') && (
+                          <>
                         <Button 
                           variant="outline" 
                           size="sm" 
@@ -108,6 +110,23 @@ const TemplatesSection = () => {
                         >
                           Beli Sekarang
                         </Button>
+                        </>
+                        )
+                        }
+                        { (!template.previewUrl || template.previewUrl == '') && (
+                          <>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          disabled 
+                          className="flex-1 bg-yellow-100"
+                          onClick={() => window.open(template.previewUrl, '_blank')}
+                        >
+                          Segera Hadir
+                        </Button>
+                        </>
+                        )
+                        }
                       </div>
                     </div>
                   </article>

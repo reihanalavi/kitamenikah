@@ -82,8 +82,8 @@ const PricingSection = () => {
                 key={plan.id}
                 className={`flex flex-col justify-between rounded-3xl bg-white p-8 ring-1 xl:p-10 ${
                   isPopular 
-                    ? 'ring-2 ring-slate-600 lg:z-10 lg:rounded-b-none' 
-                    : 'ring-gray-200 lg:mt-8 lg:rounded-t-none'
+                    ? 'ring-2 ring-slate-600 lg:z-10 lg:rounded-xl' 
+                    : 'ring-gray-200 lg:mt-8 lg:rounded-xl'
                 }`}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
