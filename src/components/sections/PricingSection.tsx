@@ -1,9 +1,16 @@
 
 import { Button } from "@/components/ui/button";
 import { usePricing } from "@/hooks/usePricing";
+import { motion } from "framer-motion";
 
 const PricingSection = () => {
   const { data: pricingData, isLoading, error } = usePricing();
+
+  const handleWhatsAppContact = (paketName: string) => {
+    const message = `Halo, saya tertarik dengan paket ${paketName}. Bisa minta informasi lebih lanjut?`;
+    const whatsappUrl = `https://wa.me/6285700397919?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
 
   if (isLoading) {
     return (
@@ -42,14 +49,27 @@ const PricingSection = () => {
   }
 
   return (
-    <section id="pricing" className="py-24 sm:py-32 bg-gray-50">
+    <motion.section 
+      id="pricing" 
+      className="py-24 sm:py-32 bg-gray-50"
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      viewport={{ once: true }}
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
+        <motion.div 
+          className="mx-auto max-w-4xl text-center"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
           <h2 className="text-base font-semibold leading-7 text-slate-600">Pricing</h2>
           <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
             Pilih Paket Sesuai Kebutuhan
           </p>
-        </div>
+        </motion.div>
         <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">
           Dapatkan undangan pernikahan digital terbaik dengan harga yang terjangkau
         </p>
@@ -58,11 +78,18 @@ const PricingSection = () => {
           {pricingData?.map((plan, index) => {
             const isPopular = index === 1; // Make middle plan popular
             return (
-              <div key={plan.id} className={`flex flex-col justify-between rounded-3xl bg-white p-8 ring-1 xl:p-10 ${
-                isPopular 
-                  ? 'ring-2 ring-slate-600 lg:z-10 lg:rounded-b-none' 
-                  : 'ring-gray-200 lg:mt-8 lg:rounded-t-none'
-              }`}>
+              <motion.div 
+                key={plan.id}
+                className={`flex flex-col justify-between rounded-3xl bg-white p-8 ring-1 xl:p-10 ${
+                  isPopular 
+                    ? 'ring-2 ring-slate-600 lg:z-10 lg:rounded-b-none' 
+                    : 'ring-gray-200 lg:mt-8 lg:rounded-t-none'
+                }`}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
                 <div>
                   <div className="flex items-center justify-between gap-x-4">
                     <h3 className="text-lg font-semibold leading-8 text-slate-900">
@@ -92,15 +119,16 @@ const PricingSection = () => {
                 <Button 
                   className={`mt-8 ${isPopular ? '' : 'bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:ring-slate-300'}`}
                   variant={isPopular ? 'default' : 'outline'}
+                  onClick={() => handleWhatsAppContact(plan.paket)}
                 >
                   Pilih Paket
                 </Button>
-              </div>
+              </motion.div>
             );
           })}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 

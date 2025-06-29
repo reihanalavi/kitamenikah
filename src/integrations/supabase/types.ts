@@ -150,6 +150,7 @@ export type Database = {
           id: string
           message: string
           name: string
+          "rating-star": number
         }
         Insert: {
           avatarUrl?: string | null
@@ -157,6 +158,7 @@ export type Database = {
           id: string
           message: string
           name: string
+          "rating-star": number
         }
         Update: {
           avatarUrl?: string | null
@@ -164,6 +166,7 @@ export type Database = {
           id?: string
           message?: string
           name?: string
+          "rating-star"?: number
         }
         Relationships: []
       }

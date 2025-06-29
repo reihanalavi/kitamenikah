@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 const HeroSection = () => {
   const scrollToSection = (sectionId: string) => {
@@ -13,7 +14,12 @@ const HeroSection = () => {
     <section className="relative overflow-hidden bg-white py-20 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:items-center">
-          <div className="lg:pr-8 lg:pt-4">
+          <motion.div 
+            className="lg:pr-8 lg:pt-4"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+          >
             <div className="lg:max-w-lg">
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
                 KitaMenikah
@@ -40,16 +46,21 @@ const HeroSection = () => {
                 </Button>
               </div>
             </div>
-          </div>
-          <div className="flex items-center justify-center lg:justify-end">
+          </motion.div>
+          <motion.div 
+            className="flex items-center justify-center lg:justify-end"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
             <div className="relative">
               <img 
                 src="/lovable-uploads/9c420be1-90d0-472c-b397-b6f9c29d4de8.png" 
                 alt="Mockup smartphone undangan digital"
-                className="w-full max-w-sm rounded-2xl bg-gray-900/5 shadow-2xl ring-1 ring-gray-900/10"
+                className="w-full max-w-sm"
               />
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

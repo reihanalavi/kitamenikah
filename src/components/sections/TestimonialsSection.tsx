@@ -1,85 +1,100 @@
 
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
-
-const testimonials = [
-  {
-    name: "Sarah & Budi",
-    content: "KitaMenikah membuat proses pembuatan undangan jadi sangat mudah! Template-nya cantik dan fitur personalisasinya lengkap sekali.",
-    rating: 5
-  },
-  {
-    name: "Dewi & Agus",
-    content: "Tamu-tamu kami sangat terkesan dengan undangan digitalnya. Musik dan galeri fotonya benar-benar membuat undangan jadi hidup!",
-    rating: 5
-  },
-  {
-    name: "Maya & Rizky",
-    content: "Pelayanannya excellent dan hasilnya melebihi ekspektasi. Highly recommended untuk calon pengantin!",
-    rating: 5
-  },
-  {
-    name: "Andi & Sari",
-    content: "Proses pembuatannya cepat dan hasilnya sangat memuaskan. Tim KitaMenikah sangat responsif dan profesional.",
-    rating: 5
-  },
-  {
-    name: "Rio & Fitri",
-    content: "Undangan digitalnya elegant banget dan mudah dibagikan ke keluarga dan teman-teman. Terima kasih KitaMenikah!",
-    rating: 5
-  }
-];
+import { motion } from "framer-motion";
+import { useTestimonials } from "@/hooks/useTestimonials";
 
 const TestimonialsSection = () => {
+  const { data: testimonials, isLoading, error } = useTestimonials();
+
+  if (isLoading) {
+    return (
+      <section className="py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="flex justify-center">
+            <p className="text-gray-600">Loading testimonials...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !testimonials) {
+    return (
+      <section className="py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="flex justify-center">
+            <p className="text-red-600">Error loading testimonials. Please try again later.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Duplicate testimonials to create seamless loop
+  const duplicatedTestimonials = [...testimonials, ...testimonials];
+
   return (
-    <section className="py-24 sm:py-32">
+    <motion.section 
+      className="py-24 sm:py-32 overflow-hidden"
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      viewport={{ once: true }}
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-xl text-center">
+        <motion.div 
+          className="mx-auto max-w-xl text-center"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
           <h2 className="text-lg font-semibold leading-8 tracking-tight text-slate-600">Testimoni</h2>
           <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Kata Mereka Tentang KitaMenikah
+            Apa Kata Mereka Setelah Lihat Preview Kami?
           </p>
-        </div>
+        </motion.div>
         
-        <div className="mt-16">
-          <Carousel
-            plugins={[
-              Autoplay({
-                delay: 3000,
-              }),
-            ]}
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent>
-              {testimonials.map((testimonial, index) => (
-                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                  <div className="p-1">
-                    <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6 h-full">
-                      <blockquote className="text-gray-900">
-                        <p>"{testimonial.content}"</p>
-                      </blockquote>
-                      <figcaption className="mt-6 flex items-center gap-x-4">
-                        <div>
-                          <div className="font-semibold text-gray-900">{testimonial.name}</div>
+        <div className="mt-16 relative">
+          <div className="flex overflow-hidden w-full">
+            <motion.div
+              className="flex gap-6"
+              animate={{
+                x: [0, -100 * testimonials.length + '%']
+              }}
+              transition={{
+                x: {
+                  repeat: Infinity,
+                  repeatType: "loop",
+                  duration: testimonials.length * 8,
+                  ease: "linear",
+                },
+              }}
+              style={{ width: `${duplicatedTestimonials.length * 400}px` }}
+            >
+              {duplicatedTestimonials.map((testimonial, index) => (
+                <div key={`${testimonial.id}-${index}`} className="flex-shrink-0 w-96">
+                  <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6 h-full">
+                    <blockquote className="text-gray-900">
+                      <p>"{testimonial.message}"</p>
+                    </blockquote>
+                    <figcaption className="mt-6 flex items-center gap-x-4">
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                        <div className="flex mt-2">
+                          {[...Array(testimonial['rating-star'])].map((_, i) => (
+                            <span key={i} className="text-yellow-400">★</span>
+                          ))}
                         </div>
-                      </figcaption>
-                    </figure>
-                  </div>
-                </CarouselItem>
+                      </div>
+                    </figcaption>
+                  </figure>
+                </div>
               ))}
-            </CarouselContent>
-          </Carousel>
+            </motion.div>
+          </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 

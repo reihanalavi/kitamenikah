@@ -1,5 +1,6 @@
 
 import { Mail, Instagram } from "lucide-react";
+import { motion } from "framer-motion";
 
 const Footer = () => {
   const scrollToSection = (sectionId: string) => {
@@ -14,14 +15,35 @@ const Footer = () => {
     window.open(whatsappUrl, '_blank');
   };
 
+  const handleEmailContact = () => {
+    window.location.href = 'mailto:undangankitamenikahcom@gmail.com';
+  };
+
+  const handleInstagramContact = () => {
+    window.open('https://www.instagram.com/kitamenikahcom/', '_blank');
+  };
+
   return (
-    <footer className="bg-gray-900" aria-labelledby="footer-heading">
+    <motion.footer 
+      className="bg-gray-900" 
+      aria-labelledby="footer-heading"
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      viewport={{ once: true }}
+    >
       <h2 id="footer-heading" className="sr-only">
         Footer
       </h2>
       <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-          <div className="space-y-8">
+          <motion.div 
+            className="space-y-8"
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
             <div className="flex items-center space-x-2">
               <img 
                 src="/lovable-uploads/542e45ab-08df-4971-a4ec-d7558399992d.png" 
@@ -33,10 +55,15 @@ const Footer = () => {
               Platform terdepan untuk membuat undangan pernikahan digital yang personal dan berkesan. 
               Wujudkan hari bahagia Anda dengan undangan yang tak terlupakan.
             </p>
-          </div>
+          </motion.div>
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
             <div className="md:grid md:grid-cols-2 md:gap-8">
-              <div>
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                viewport={{ once: true }}
+              >
                 <h3 className="text-sm font-semibold leading-6 text-white">Layanan</h3>
                 <ul role="list" className="mt-6 space-y-4">
                   <li>
@@ -64,16 +91,24 @@ const Footer = () => {
                     </button>
                   </li>
                 </ul>
-              </div>
+              </motion.div>
             </div>
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
               <h3 className="text-sm font-semibold leading-6 text-white">Kontak</h3>
               <ul role="list" className="mt-6 space-y-4">
                 <li>
-                  <div className="flex items-center gap-2 text-sm leading-6 text-gray-300">
+                  <button 
+                    onClick={handleEmailContact}
+                    className="flex items-center gap-2 text-sm leading-6 text-gray-300 hover:text-white"
+                  >
                     <Mail className="h-4 w-4" />
                     undangankitamenikahcom@gmail.com
-                  </div>
+                  </button>
                 </li>
                 <li>
                   <button 
@@ -87,22 +122,31 @@ const Footer = () => {
                   </button>
                 </li>
                 <li>
-                  <div className="flex items-center gap-2 text-sm leading-6 text-gray-300">
+                  <button 
+                    onClick={handleInstagramContact}
+                    className="flex items-center gap-2 text-sm leading-6 text-gray-300 hover:text-white"
+                  >
                     <Instagram className="h-4 w-4" />
                     @kitamenikahcom
-                  </div>
+                  </button>
                 </li>
               </ul>
-            </div>
+            </motion.div>
           </div>
         </div>
-        <div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">
+        <motion.div 
+          className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          viewport={{ once: true }}
+        >
           <p className="text-xs leading-5 text-gray-400">
             &copy; 2025 KitaMenikah. All rights reserved.
           </p>
-        </div>
+        </motion.div>
       </div>
-    </footer>
+    </motion.footer>
   );
 };
 
