@@ -1,5 +1,13 @@
 
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import { useEffect } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 
 const testimonials = [
   {
@@ -29,23 +37,39 @@ const TestimonialsSection = () => {
             Kata Mereka Tentang KitaMenikah
           </p>
         </div>
-        <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
-          <div className="-mt-8 sm:-mx-4 sm:columns-1 sm:text-[0] lg:columns-3">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="pt-8 sm:inline-block sm:w-full sm:px-4">
-                <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6">
-                  <blockquote className="text-gray-900">
-                    <p>"{testimonial.content}"</p>
-                  </blockquote>
-                  <figcaption className="mt-6 flex items-center gap-x-4">
-                    <div>
-                      <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                    </div>
-                  </figcaption>
-                </figure>
-              </div>
-            ))}
-          </div>
+        
+        <div className="mx-auto mt-16 max-w-4xl">
+          <Carousel
+            plugins={[
+              Autoplay({
+                delay: 4000,
+              }),
+            ]}
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {testimonials.map((testimonial, index) => (
+                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6 h-full">
+                      <blockquote className="text-gray-900">
+                        <p>"{testimonial.content}"</p>
+                      </blockquote>
+                      <figcaption className="mt-6 flex items-center gap-x-4">
+                        <div>
+                          <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                        </div>
+                      </figcaption>
+                    </figure>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
         </div>
       </div>
     </section>

@@ -1,7 +1,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router-dom";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const templates = [
   {
@@ -43,41 +49,47 @@ const TemplatesSection = () => {
           </p>
         </div>
 
-        <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-4">
-          {templates.map((template) => (
-            <article key={template.id} className="flex flex-col items-start">
-              <div className="relative w-full">
-                <img 
-                  src={template.image} 
-                  alt={template.name}
-                  className="aspect-[16/20] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/4]"
-                />
-                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
-              </div>
-              <div className="max-w-xl pt-6">
-                <h3 className="text-lg font-semibold leading-6 text-gray-900">
-                  {template.name}
-                </h3>
-                <p className="mt-2 text-2xl font-bold text-gray-900">{template.price}</p>
-                <div className="mt-4 flex gap-x-3">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    Live Preview
-                  </Button>
-                  <Button size="sm" className="flex-1">
-                    Beli Sekarang
-                  </Button>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        <div className="text-center mt-16">
-          <Link to="/templates">
-            <Button size="lg" variant="outline">
-              Lihat Template Lebih Banyak
-            </Button>
-          </Link>
+        <div className="mx-auto mt-16 max-w-6xl">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {templates.map((template) => (
+                <CarouselItem key={template.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                  <article className="flex flex-col items-start">
+                    <div className="relative w-full">
+                      <img 
+                        src={template.image} 
+                        alt={template.name}
+                        className="aspect-[16/20] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/4]"
+                      />
+                      <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
+                    </div>
+                    <div className="max-w-xl pt-6">
+                      <h3 className="text-lg font-semibold leading-6 text-gray-900">
+                        {template.name}
+                      </h3>
+                      <p className="mt-2 text-2xl font-bold text-gray-900">{template.price}</p>
+                      <div className="mt-4 flex gap-x-3">
+                        <Button variant="outline" size="sm" className="flex-1">
+                          Live Preview
+                        </Button>
+                        <Button size="sm" className="flex-1">
+                          Beli Sekarang
+                        </Button>
+                      </div>
+                    </div>
+                  </article>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
         </div>
       </div>
     </section>
