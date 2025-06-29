@@ -22,7 +22,7 @@ const Navigation = () => {
           <a href="#" className="-m-1.5 p-1.5">
             <span className="sr-only">BahteraKita</span>
             <img 
-              src="/public/bahterakita-logo.png" 
+              src="https://jjpfoguzwsoweehfzmxi.supabase.co/storage/v1/object/sign/kitamenikah/bahterakita-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV80MWJkZjViNS0zNDZkLTQyYWQtOTg5ZS1iMTI0NDgxYzIxY2IiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJraXRhbWVuaWthaC9iYWh0ZXJha2l0YS1sb2dvLnBuZyIsImlhdCI6MTc1MTIwMDM5NiwiZXhwIjoxNzgyNzM2Mzk2fQ.BOoDuEDYABUBgzd_Luvw5hbsIkkLMgIY3HFEynbi3D0" 
               alt="BahteraKita"
               className="h-8 w-auto"
             />
