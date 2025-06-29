@@ -16,11 +16,11 @@ const Footer = () => {
   };
 
   const handleEmailContact = () => {
-    window.location.href = 'mailto:undangankitamenikahcom@gmail.com';
+    window.location.href = 'mailto:undanganbahterakitacom@gmail.com';
   };
 
   const handleInstagramContact = () => {
-    window.open('https://www.instagram.com/kitamenikahcom/', '_blank');
+    window.open('https://www.instagram.com/bahterakitacom/', '_blank');
   };
 
   return (
@@ -46,8 +46,8 @@ const Footer = () => {
           >
             <div className="flex items-center space-x-2">
               <img 
-                src="/lovable-uploads/542e45ab-08df-4971-a4ec-d7558399992d.png" 
-                alt="KitaMenikah"
+                src="/public/bahterakita-logo.png" 
+                alt="BahteraKita"
                 className="h-8 w-auto brightness-0 invert"
               />
             </div>
@@ -101,15 +101,15 @@ const Footer = () => {
             >
               <h3 className="text-sm font-semibold leading-6 text-white">Kontak</h3>
               <ul role="list" className="mt-6 space-y-4">
-                <li>
+                {/* <li>
                   <button 
                     onClick={handleEmailContact}
                     className="flex items-center gap-2 text-sm leading-6 text-gray-300 hover:text-white"
                   >
                     <Mail className="h-4 w-4" />
-                    undangankitamenikahcom@gmail.com
+                    undanganbahterakitacom@gmail.com
                   </button>
-                </li>
+                </li> */}
                 <li>
                   <button 
                     onClick={handleWhatsAppContact}
@@ -127,7 +127,7 @@ const Footer = () => {
                     className="flex items-center gap-2 text-sm leading-6 text-gray-300 hover:text-white"
                   >
                     <Instagram className="h-4 w-4" />
-                    @kitamenikahcom
+                    @bahterakitacom
                   </button>
                 </li>
               </ul>
@@ -142,7 +142,7 @@ const Footer = () => {
           viewport={{ once: true }}
         >
           <p className="text-xs leading-5 text-gray-400">
-            &copy; 2025 KitaMenikah. All rights reserved.
+            &copy; 2025 BahteraKita. All rights reserved.
           </p>
         </motion.div>
       </div>

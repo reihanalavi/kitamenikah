@@ -20,10 +20,10 @@ const Navigation = () => {
       <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
           <a href="#" className="-m-1.5 p-1.5">
-            <span className="sr-only">KitaMenikah</span>
+            <span className="sr-only">BahteraKita</span>
             <img 
-              src="/lovable-uploads/542e45ab-08df-4971-a4ec-d7558399992d.png" 
-              alt="KitaMenikah"
+              src="/public/bahterakita-logo.png" 
+              alt="BahteraKita"
               className="h-8 w-auto"
             />
           </a>
@@ -68,7 +68,7 @@ const Navigation = () => {
             <div className="flex items-center justify-between">
               <img 
                 src="/lovable-uploads/542e45ab-08df-4971-a4ec-d7558399992d.png" 
-                alt="KitaMenikah"
+                alt="BahteraKita"
                 className="h-8 w-auto"
               />
               <button

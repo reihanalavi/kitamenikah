@@ -38,7 +38,7 @@ const FAQSection = () => {
             Pertanyaan yang Sering Diajukan
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Temukan jawaban atas pertanyaan umum seputar layanan KitaMenikah
+            Temukan jawaban atas pertanyaan umum seputar layanan BahteraKita
           </p>
         </div>
 

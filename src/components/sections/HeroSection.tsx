@@ -22,7 +22,7 @@ const HeroSection = () => {
           >
             <div className="lg:max-w-lg">
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-                KitaMenikah
+                BahteraKita
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-600">
                 Undangan digital personal, dibuat khusus untukmu.
