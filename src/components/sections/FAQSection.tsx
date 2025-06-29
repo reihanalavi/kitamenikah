@@ -15,7 +15,7 @@ const FAQSection = () => {
       <section className="py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex justify-center">
-            <p className="text-gray-600">Loading faqs...</p>
+            <p className="text-gray-600 select-none">Loading faqs...</p>
           </div>
         </div>
       </section>
@@ -27,7 +27,7 @@ const FAQSection = () => {
       <section className="py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex justify-center">
-            <p className="text-red-600">Error loading faqs. Please try again later.</p>
+            <p className="text-red-600 select-none">Error loading faqs. Please try again later.</p>
           </div>
         </div>
       </section>
@@ -38,10 +38,10 @@ const FAQSection = () => {
     <section className="py-20">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 select-none">
             Pertanyaan yang Sering Diajukan
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto select-none">
             Temukan jawaban atas pertanyaan umum seputar layanan SekapurSirih
           </p>
         </div>
@@ -50,10 +50,10 @@ const FAQSection = () => {
           <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg px-6">
-                <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                <AccordionTrigger className="text-left font-semibold hover:no-underline select-none">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-gray-600 leading-relaxed">
+                <AccordionContent className="text-gray-600 leading-relaxed select-none">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

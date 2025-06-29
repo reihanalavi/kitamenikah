@@ -18,12 +18,12 @@ const PricingSection = () => {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="text-base font-semibold leading-7 text-slate-600">Pricing</h2>
-            <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+            <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl select-none">
               Pilih Paket Sesuai Kebutuhan
             </p>
           </div>
           <div className="flex justify-center mt-16">
-            <p className="text-gray-600">Loading pricing data...</p>
+            <p className="text-gray-600 select-none">Loading pricing data...</p>
           </div>
         </div>
       </section>
@@ -36,12 +36,12 @@ const PricingSection = () => {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="text-base font-semibold leading-7 text-slate-600">Pricing</h2>
-            <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+            <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl select-none">
               Pilih Paket Sesuai Kebutuhan
             </p>
           </div>
           <div className="flex justify-center mt-16">
-            <p className="text-red-600">Error loading pricing data. Please try again later.</p>
+            <p className="text-red-600 select-none">Error loading pricing data. Please try again later.</p>
           </div>
         </div>
       </section>
@@ -66,11 +66,11 @@ const PricingSection = () => {
           viewport={{ once: true }}
         >
           <h2 className="text-base font-semibold leading-7 text-slate-600">Pricing</h2>
-          <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+          <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl select-none">
             Pilih Paket Sesuai Kebutuhan
           </p>
         </motion.div>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">
+        <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600 select-none">
           Dapatkan undangan pernikahan digital terbaik dengan harga yang terjangkau
         </p>
         
@@ -92,24 +92,24 @@ const PricingSection = () => {
               >
                 <div>
                   <div className="flex items-center justify-between gap-x-4">
-                    <h3 className="text-lg font-semibold leading-8 text-slate-900">
+                    <h3 className="text-lg font-semibold leading-8 text-slate-900 select-none">
                       {plan.paket}
                     </h3>
                     {isPopular && (
-                      <p className="rounded-full bg-slate-600/10 px-2.5 py-1 text-xs font-semibold leading-5 text-slate-600">
+                      <p className="rounded-full bg-slate-600/10 px-2.5 py-1 text-xs font-semibold leading-5 text-slate-600 select-none">
                         Paling Populer
                       </p>
                     )}
                   </div>
-                  <p className="mt-4 text-sm leading-6 text-gray-600">{plan.deskripsi_paket}</p>
+                  <p className="mt-4 text-sm leading-6 text-gray-600 select-none">{plan.deskripsi_paket}</p>
                   <p className="mt-6 flex items-baseline gap-x-1">
-                    <span className="text-4xl font-bold tracking-tight text-gray-900">
+                    <span className="text-4xl font-bold tracking-tight text-gray-900 select-none">
                       Rp {plan.harga_paket.toLocaleString('id-ID')}
                     </span>
                   </p>
                   <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-600">
                     {plan.PricingBenefit?.map((benefit, benefitIndex) => (
-                      <li key={benefitIndex} className="flex gap-x-3">
+                      <li key={benefitIndex} className="flex gap-x-3 select-none">
                         <span className="text-slate-600">✓</span>
                         {benefit.benefit}
                       </li>
@@ -117,7 +117,7 @@ const PricingSection = () => {
                   </ul>
                 </div>
                 <Button 
-                  className={`mt-8 ${isPopular ? '' : 'bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:ring-slate-300'}`}
+                  className={`mt-8 ${isPopular ? '' : 'bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:ring-slate-300'} select-none`}
                   variant={isPopular ? 'default' : 'outline'}
                   onClick={() => handleWhatsAppContact(plan.paket)}
                 >

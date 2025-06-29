@@ -12,7 +12,7 @@ const TestimonialsSection = () => {
       <section className="py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex justify-center">
-            <p className="text-gray-600">Loading testimonials...</p>
+            <p className="text-gray-600 select-none">Loading testimonials...</p>
           </div>
         </div>
       </section>
@@ -24,7 +24,7 @@ const TestimonialsSection = () => {
       <section className="py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex justify-center">
-            <p className="text-red-600">Error loading testimonials. Please try again later.</p>
+            <p className="text-red-600 select-none">Error loading testimonials. Please try again later.</p>
           </div>
         </div>
       </section>
@@ -51,8 +51,8 @@ const TestimonialsSection = () => {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-lg font-semibold leading-8 tracking-tight text-slate-600">Testimoni</h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+          <h2 className="text-lg font-semibold leading-8 tracking-tight text-slate-600 select-none">Testimoni</h2>
+          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl select-none">
             Apa Kata Mereka Setelah Lihat Preview Kami?
           </p>
         </motion.div>
@@ -71,13 +71,13 @@ const TestimonialsSection = () => {
                 <CarouselItem key={testimonial.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                   <article className="flex flex-col items-start">
                     <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6 h-full">
-                    <blockquote className="text-gray-900">
+                    <blockquote className="text-gray-900 select-none">
                       <p>{testimonial.message}</p>
                     </blockquote>
                     <figcaption className="mt-6 flex items-center gap-x-4">
                       <div className="flex-1">
-                        <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                        <div className="flex mt-2">
+                        <div className="font-semibold text-gray-900 select-none">{testimonial.name}</div>
+                        <div className="flex mt-2 select-none">
                           {[...Array(testimonial['rating-star'])].map((_, i) => (
                             <span key={i} className="text-yellow-400">★</span>
                           ))}

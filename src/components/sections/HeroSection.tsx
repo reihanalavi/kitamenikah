@@ -21,24 +21,26 @@ const HeroSection = () => {
             transition={{ duration: 0.8 }}
           >
             <div className="lg:max-w-lg">
-              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl select-none">
                 SekapurSirih
               </h1>
-              <p className="mt-6 text-lg leading-8 text-gray-600">
+              <p className="mt-6 text-lg leading-8 text-gray-600 select-none">
                 Undangan digital personal, dibuat khusus untukmu.
               </p>
-              <p className="mt-4 text-base leading-7 text-gray-500">
+              <p className="mt-4 text-base leading-7 text-gray-500 select-none">
                 Tak perlu repot desain sendiri. Cukup kirim data, kami bantu wujudkan undangan pernikahan digital yang elegan, personal, dan siap dibagikan.
               </p>
               <div className="mt-10 flex items-center gap-x-6">
                 <Button 
                   size="lg"
+                  className="select-none"
                   onClick={() => scrollToSection('pricing')}
                 >
                   Mulai Sekarang
                 </Button>
                 <Button 
                   variant="outline" 
+                  className="select-none"
                   size="lg"
                   onClick={() => scrollToSection('templates')}
                 >
@@ -57,7 +59,7 @@ const HeroSection = () => {
               <img 
                 src="/lovable-uploads/9c420be1-90d0-472c-b397-b6f9c29d4de8.png" 
                 alt="Mockup smartphone undangan digital"
-                className="w-full max-w-sm"
+                className="w-full max-w-sm select-none"
               />
             </div>
           </motion.div>
