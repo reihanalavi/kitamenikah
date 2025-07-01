@@ -146,7 +146,7 @@ export type Database = {
       LandingpageTestimony: {
         Row: {
           avatarUrl: string | null
-          createdAt: string
+          created_at: string
           id: string
           message: string
           name: string
@@ -154,7 +154,7 @@ export type Database = {
         }
         Insert: {
           avatarUrl?: string | null
-          createdAt?: string
+          created_at?: string
           id: string
           message: string
           name: string
@@ -162,7 +162,7 @@ export type Database = {
         }
         Update: {
           avatarUrl?: string | null
-          createdAt?: string
+          created_at?: string
           id?: string
           message?: string
           name?: string
