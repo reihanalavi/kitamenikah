@@ -18,7 +18,7 @@ const PaymentUnfinish = () => {
   const orderId = searchParams.get('order_id');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -61,7 +61,7 @@ const PaymentUnfinish = () => {
             <div className="space-y-3 pt-4">
               <Button 
                 onClick={() => navigate("/checkout")} 
-                className="w-full"
+                className="w-full bg-slate-900 hover:bg-slate-800"
                 size="lg"
               >
                 <CreditCard className="w-4 h-4 mr-2" />

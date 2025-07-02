@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+    <div className="min-h-screen bg-white py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -26,7 +26,7 @@ const PrivacyPolicy = () => {
           </Button>
           
           <div className="flex items-center gap-3 mb-4">
-            <Shield className="w-8 h-8 text-blue-600" />
+            <Shield className="w-8 h-8 text-slate-700" />
             <h1 className="text-3xl font-bold text-gray-900">Kebijakan Privasi</h1>
           </div>
           
@@ -44,7 +44,7 @@ const PrivacyPolicy = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-blue-700">Data yang Kami Kumpulkan</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Data yang Kami Kumpulkan</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
@@ -70,7 +70,7 @@ const PrivacyPolicy = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-blue-700">Penggunaan Data</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Penggunaan Data</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-3">Data yang kami kumpulkan digunakan untuk:</p>
@@ -91,7 +91,7 @@ const PrivacyPolicy = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-blue-700">Perlindungan Data</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Perlindungan Data</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
@@ -109,7 +109,7 @@ const PrivacyPolicy = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-blue-700">Pihak Ketiga</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Pihak Ketiga</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">

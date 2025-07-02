@@ -9,7 +9,7 @@ const RefundPolicy = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-12 px-4">
+    <div className="min-h-screen bg-white py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -26,7 +26,7 @@ const RefundPolicy = () => {
           </Button>
           
           <div className="flex items-center gap-3 mb-4">
-            <RotateCcw className="w-8 h-8 text-orange-600" />
+            <RotateCcw className="w-8 h-8 text-slate-700" />
             <h1 className="text-3xl font-bold text-gray-900">Kebijakan Pengembalian Dana</h1>
           </div>
           
@@ -44,7 +44,7 @@ const RefundPolicy = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-orange-700">Ketentuan Refund</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Ketentuan Refund</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-gray-600">
@@ -67,7 +67,7 @@ const RefundPolicy = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-orange-700">Prosedur Refund</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Prosedur Refund</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-gray-600">

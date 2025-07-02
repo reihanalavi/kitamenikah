@@ -9,7 +9,7 @@ const TermsConditions = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 px-4">
+    <div className="min-h-screen bg-white py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -26,7 +26,7 @@ const TermsConditions = () => {
           </Button>
           
           <div className="flex items-center gap-3 mb-4">
-            <FileText className="w-8 h-8 text-green-600" />
+            <FileText className="w-8 h-8 text-slate-700" />
             <h1 className="text-3xl font-bold text-gray-900">Syarat & Ketentuan</h1>
           </div>
           
@@ -44,7 +44,7 @@ const TermsConditions = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-green-700">Umum</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Umum</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-gray-600">
@@ -65,7 +65,7 @@ const TermsConditions = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-green-700">Hak Cipta</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Hak Cipta</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-gray-600">
@@ -86,7 +86,7 @@ const TermsConditions = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-green-700">Tanggung Jawab Pengguna</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Tanggung Jawab Pengguna</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-gray-600">

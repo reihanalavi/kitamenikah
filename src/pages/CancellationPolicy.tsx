@@ -9,7 +9,7 @@ const CancellationPolicy = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 py-12 px-4">
+    <div className="min-h-screen bg-white py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -26,7 +26,7 @@ const CancellationPolicy = () => {
           </Button>
           
           <div className="flex items-center gap-3 mb-4">
-            <XCircle className="w-8 h-8 text-red-600" />
+            <XCircle className="w-8 h-8 text-slate-700" />
             <h1 className="text-3xl font-bold text-gray-900">Kebijakan Pembatalan</h1>
           </div>
           
@@ -44,7 +44,7 @@ const CancellationPolicy = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-red-700">Pembatalan Sebelum Produksi</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Pembatalan Sebelum Produksi</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-gray-600">
@@ -64,7 +64,7 @@ const CancellationPolicy = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-red-700">Pembatalan Setelah Produksi Dimulai</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Pembatalan Setelah Produksi Dimulai</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-gray-600">

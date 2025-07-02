@@ -20,7 +20,7 @@ const PaymentError = () => {
   const statusMessage = searchParams.get('status_message');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -80,7 +80,7 @@ const PaymentError = () => {
             <div className="space-y-3 pt-4">
               <Button 
                 onClick={() => navigate("/checkout")} 
-                className="w-full"
+                className="w-full bg-slate-900 hover:bg-slate-800"
                 size="lg"
               >
                 <RefreshCcw className="w-4 h-4 mr-2" />

@@ -9,7 +9,7 @@ const Disclaimer = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-violet-100 py-12 px-4">
+    <div className="min-h-screen bg-white py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -26,7 +26,7 @@ const Disclaimer = () => {
           </Button>
           
           <div className="flex items-center gap-3 mb-4">
-            <AlertTriangle className="w-8 h-8 text-purple-600" />
+            <AlertTriangle className="w-8 h-8 text-slate-700" />
             <h1 className="text-3xl font-bold text-gray-900">Disclaimer / Penyangkalan</h1>
           </div>
         </motion.div>
@@ -39,7 +39,7 @@ const Disclaimer = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-purple-700">Keterbatasan Tanggung Jawab</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Keterbatasan Tanggung Jawab</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-gray-600">
@@ -60,7 +60,7 @@ const Disclaimer = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-purple-700">Perubahan Layanan</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Perubahan Layanan</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
@@ -78,7 +78,7 @@ const Disclaimer = () => {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-purple-700">Konten Pihak Ketiga</CardTitle>
+                <CardTitle className="text-xl text-slate-700">Konten Pihak Ketiga</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
