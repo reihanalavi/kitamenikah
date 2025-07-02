@@ -8,6 +8,10 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Templates from "./pages/Templates";
 import Checkout from "./pages/Checkout";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentUnfinish from "./pages/PaymentUnfinish";
+import PaymentError from "./pages/PaymentError";
+import PaymentNotification from "./pages/PaymentNotification";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +27,10 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/templates" element={<Templates />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/unfinish" element={<PaymentUnfinish />} />
+          <Route path="/payment/error" element={<PaymentError />} />
+          <Route path="/payment/notification" element={<PaymentNotification />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
