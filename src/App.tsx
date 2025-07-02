@@ -12,6 +12,11 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentUnfinish from "./pages/PaymentUnfinish";
 import PaymentError from "./pages/PaymentError";
 import PaymentNotification from "./pages/PaymentNotification";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
+import RefundPolicy from "./pages/RefundPolicy";
+import CancellationPolicy from "./pages/CancellationPolicy";
+import Disclaimer from "./pages/Disclaimer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +36,11 @@ const App = () => (
           <Route path="/payment/unfinish" element={<PaymentUnfinish />} />
           <Route path="/payment/error" element={<PaymentError />} />
           <Route path="/payment/notification" element={<PaymentNotification />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/cancellation-policy" element={<CancellationPolicy />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

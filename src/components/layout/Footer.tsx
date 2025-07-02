@@ -1,8 +1,11 @@
 
 import { Mail, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const Footer = () => {
+  const navigate = useNavigate();
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -36,7 +39,7 @@ const Footer = () => {
         Footer
       </h2>
       <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
-        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
+        <div className="xl:grid xl:grid-cols-4 xl:gap-8">
           <motion.div 
             className="space-y-8"
             initial={{ opacity: 0, x: -30 }}
@@ -56,60 +59,101 @@ const Footer = () => {
               Wujudkan hari bahagia Anda dengan undangan yang tak terlupakan.
             </p>
           </motion.div>
-          <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                viewport={{ once: true }}
-              >
-                <h3 className="text-sm font-semibold leading-6 text-white select-none">Layanan</h3>
-                <ul role="list" className="mt-6 space-y-4">
-                  <li>
-                    <button 
-                      onClick={() => scrollToSection('templates')}
-                      className="text-sm leading-6 text-gray-300 hover:text-white select-none"
-                    >
-                      Template Undangan
-                    </button>
-                  </li>
-                  <li>
-                    <button 
-                      onClick={() => scrollToSection('features')}
-                      className="text-sm leading-6 text-gray-300 hover:text-white select-none"
-                    >
-                      Fitur
-                    </button>
-                  </li>
-                  <li>
-                    <button 
-                      onClick={() => scrollToSection('pricing')}
-                      className="text-sm leading-6 text-gray-300 hover:text-white select-none"
-                    >
-                      Biaya
-                    </button>
-                  </li>
-                </ul>
-              </motion.div>
-            </div>
+          <div className="mt-16 grid grid-cols-1 gap-8 xl:col-span-3 xl:mt-0 lg:grid-cols-3">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
+              <h3 className="text-sm font-semibold leading-6 text-white select-none">Layanan</h3>
+              <ul role="list" className="mt-6 space-y-4">
+                <li>
+                  <button 
+                    onClick={() => scrollToSection('templates')}
+                    className="text-sm leading-6 text-gray-300 hover:text-white select-none"
+                  >
+                    Template Undangan
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => scrollToSection('features')}
+                    className="text-sm leading-6 text-gray-300 hover:text-white select-none"
+                  >
+                    Fitur
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => scrollToSection('pricing')}
+                    className="text-sm leading-6 text-gray-300 hover:text-white select-none"
+                  >
+                    Biaya
+                  </button>
+                </li>
+              </ul>
+            </motion.div>
+            
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
             >
+              <h3 className="text-sm font-semibold leading-6 text-white select-none">Kebijakan</h3>
+              <ul role="list" className="mt-6 space-y-4">
+                <li>
+                  <button 
+                    onClick={() => navigate('/privacy-policy')}
+                    className="text-sm leading-6 text-gray-300 hover:text-white select-none"
+                  >
+                    Kebijakan Privasi
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => navigate('/terms-conditions')}
+                    className="text-sm leading-6 text-gray-300 hover:text-white select-none"
+                  >
+                    Syarat & Ketentuan
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => navigate('/refund-policy')}
+                    className="text-sm leading-6 text-gray-300 hover:text-white select-none"
+                  >
+                    Kebijakan Refund
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => navigate('/cancellation-policy')}
+                    className="text-sm leading-6 text-gray-300 hover:text-white select-none"
+                  >
+                    Kebijakan Pembatalan
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => navigate('/disclaimer')}
+                    className="text-sm leading-6 text-gray-300 hover:text-white select-none"
+                  >
+                    Disclaimer
+                  </button>
+                </li>
+              </ul>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+            >
               <h3 className="text-sm font-semibold leading-6 text-white select-none">Kontak</h3>
               <ul role="list" className="mt-6 space-y-4">
-                {/* <li>
-                  <button 
-                    onClick={handleEmailContact}
-                    className="flex items-center gap-2 text-sm leading-6 text-gray-300 hover:text-white"
-                  >
-                    <Mail className="h-4 w-4" />
-                    undangansekapursirihid@gmail.com
-                  </button>
-                </li> */}
                 <li>
                   <button 
                     onClick={handleWhatsAppContact}
@@ -138,7 +182,7 @@ const Footer = () => {
           className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
           viewport={{ once: true }}
         >
           <p className="text-xs leading-5 text-gray-400 select-none">
