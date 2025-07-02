@@ -45,6 +45,7 @@ export type Database = {
       Invitation: {
         Row: {
           createdAt: string
+          customUrl: string | null
           id: string
           orderId: string
           publicUrl: string
@@ -52,6 +53,7 @@ export type Database = {
         }
         Insert: {
           createdAt?: string
+          customUrl?: string | null
           id: string
           orderId: string
           publicUrl: string
@@ -59,6 +61,7 @@ export type Database = {
         }
         Update: {
           createdAt?: string
+          customUrl?: string | null
           id?: string
           orderId?: string
           publicUrl?: string
@@ -70,6 +73,41 @@ export type Database = {
             columns: ["orderId"]
             isOneToOne: false
             referencedRelation: "Order"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      InvitationContent: {
+        Row: {
+          content: Json
+          createdAt: string
+          id: string
+          invitationId: string
+          mode: string
+          updatedAt: string
+        }
+        Insert: {
+          content: Json
+          createdAt?: string
+          id: string
+          invitationId: string
+          mode: string
+          updatedAt?: string
+        }
+        Update: {
+          content?: Json
+          createdAt?: string
+          id?: string
+          invitationId?: string
+          mode?: string
+          updatedAt?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "InvitationContent_invitationId_fkey"
+            columns: ["invitationId"]
+            isOneToOne: true
+            referencedRelation: "Invitation"
             referencedColumns: ["id"]
           },
         ]
@@ -174,25 +212,35 @@ export type Database = {
         Row: {
           createdAt: string
           id: string
+          pricingId: number | null
           status: string
-          templateId: string
+          templateId: string | null
           userId: string
         }
         Insert: {
           createdAt?: string
           id: string
+          pricingId?: number | null
           status: string
-          templateId: string
+          templateId?: string | null
           userId: string
         }
         Update: {
           createdAt?: string
           id?: string
+          pricingId?: number | null
           status?: string
-          templateId?: string
+          templateId?: string | null
           userId?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "Order_pricingId_fkey"
+            columns: ["pricingId"]
+            isOneToOne: false
+            referencedRelation: "Pricing"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "Order_templateId_fkey"
             columns: ["templateId"]
@@ -311,6 +359,7 @@ export type Database = {
           photo_url: string | null
           previewUrl: string
           price: number
+          type: string
         }
         Insert: {
           createdAt?: string
@@ -319,6 +368,7 @@ export type Database = {
           photo_url?: string | null
           previewUrl: string
           price: number
+          type?: string
         }
         Update: {
           createdAt?: string
@@ -327,6 +377,7 @@ export type Database = {
           photo_url?: string | null
           previewUrl?: string
           price?: number
+          type?: string
         }
         Relationships: []
       }
