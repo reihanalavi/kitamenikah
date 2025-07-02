@@ -8,9 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Package, CreditCard } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     nama: "",
     email: "",
@@ -18,6 +21,7 @@ const Checkout = () => {
     alamat: "",
     catatan: ""
   });
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Dummy data for the purchased item
   const purchasedItem = {
@@ -35,14 +39,98 @@ const Checkout = () => {
     }));
   };
 
-  const handleCheckout = () => {
-    // Here we would integrate with Midtrans payment
-    console.log("Processing checkout with Midtrans...", formData);
-    alert("Integrasi Midtrans akan segera hadir!");
+  const generateOrderId = () => {
+    return 'ORDER-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+  };
+
+  const handleCheckout = async () => {
+    // Validate form data
+    if (!formData.nama || !formData.email || !formData.phone || !formData.alamat) {
+      toast({
+        title: "Data Tidak Lengkap",
+        description: "Mohon lengkapi semua data yang wajib diisi",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const orderId = generateOrderId();
+      
+      const orderData = {
+        orderId: orderId,
+        amount: purchasedItem.price,
+        customerName: formData.nama,
+        customerEmail: formData.email,
+        customerPhone: formData.phone,
+        itemId: 'template-1',
+        itemName: purchasedItem.name
+      };
+
+      console.log('Processing checkout with order data:', orderData);
+
+      // Call edge function to create Midtrans token
+      const { data, error } = await supabase.functions.invoke('create-midtrans-token', {
+        body: { orderData }
+      });
+
+      if (error) {
+        console.error('Error calling edge function:', error);
+        throw new Error('Failed to create payment token');
+      }
+
+      console.log('Received token from edge function:', data);
+
+      // Initialize Midtrans Snap
+      if (window.snap) {
+        window.snap.pay(data.token, {
+          onSuccess: function(result: any) {
+            console.log('Payment success:', result);
+            toast({
+              title: "Pembayaran Berhasil",
+              description: "Terima kasih! Pembayaran Anda telah berhasil."
+            });
+            navigate(`/payment/success?order_id=${orderId}&transaction_status=settlement`);
+          },
+          onPending: function(result: any) {
+            console.log('Payment pending:', result);
+            navigate(`/payment/unfinish?order_id=${orderId}`);
+          },
+          onError: function(result: any) {
+            console.log('Payment error:', result);
+            navigate(`/payment/error?order_id=${orderId}&status_code=${result.status_code}&status_message=${result.status_message}`);
+          },
+          onClose: function() {
+            console.log('Payment popup closed');
+            navigate(`/payment/unfinish?order_id=${orderId}`);
+          }
+        });
+      } else {
+        throw new Error('Midtrans Snap not loaded');
+      }
+
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
+      {/* Load Midtrans Snap script */}
+      <script 
+        src="https://app.sandbox.midtrans.com/snap/snap.js" 
+        data-client-key="SB-Mid-client-IyRoK03bZbfDRlWA"
+      ></script>
+
       {/* Header */}
       <motion.div 
         className="bg-white shadow-sm border-b"
@@ -239,8 +327,9 @@ const Checkout = () => {
                     onClick={handleCheckout}
                     className="w-full mt-6 bg-slate-900 hover:bg-slate-800"
                     size="lg"
+                    disabled={isProcessing}
                   >
-                    Bayar Sekarang
+                    {isProcessing ? "Memproses..." : "Bayar Sekarang"}
                   </Button>
 
                   <p className="text-xs text-gray-500 text-center mt-3">
