@@ -208,6 +208,51 @@ export type Database = {
         }
         Relationships: []
       }
+      midtrans_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          id: string
+          item_name: string
+          order_id: string
+          redirect_url: string | null
+          snap_token: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          id?: string
+          item_name: string
+          order_id: string
+          redirect_url?: string | null
+          snap_token: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          item_name?: string
+          order_id?: string
+          redirect_url?: string | null
+          snap_token?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       Order: {
         Row: {
           createdAt: string

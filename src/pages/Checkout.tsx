@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Package, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,9 @@ import { useToast } from "@/hooks/use-toast";
 const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const resumeOrderId = searchParams.get('resume_order_id');
+  
   const [formData, setFormData] = useState({
     nama: "",
     email: "",
@@ -22,6 +25,7 @@ const Checkout = () => {
   });
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSnapLoaded, setIsSnapLoaded] = useState(false);
+  const [pendingTransaction, setPendingTransaction] = useState<any>(null);
 
   // Load Midtrans Snap script
   useEffect(() => {
@@ -52,6 +56,51 @@ const Checkout = () => {
     };
   }, [toast]);
 
+  // Check for pending transaction if resuming
+  useEffect(() => {
+    if (resumeOrderId && isSnapLoaded) {
+      checkPendingTransaction();
+    }
+  }, [resumeOrderId, isSnapLoaded]);
+
+  const checkPendingTransaction = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('midtrans_transactions')
+        .select('*')
+        .eq('order_id', resumeOrderId)
+        .eq('status', 'pending')
+        .single();
+
+      if (error) {
+        console.error('Error fetching pending transaction:', error);
+        toast({
+          title: "Error",
+          description: "Transaksi tidak ditemukan atau sudah selesai.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setPendingTransaction(data);
+      // Pre-fill form with saved data
+      setFormData({
+        nama: data.customer_name,
+        email: data.customer_email,
+        phone: data.customer_phone,
+        alamat: "", // We don't save alamat in transaction table
+        catatan: ""
+      });
+
+      toast({
+        title: "Transaksi Ditemukan",
+        description: "Data pembayaran sebelumnya telah dimuat. Anda dapat melanjutkan pembayaran.",
+      });
+    } catch (error) {
+      console.error('Error checking pending transaction:', error);
+    }
+  };
+
   // Dummy data for the purchased item
   const purchasedItem = {
     type: "template", // or "pricing"
@@ -73,7 +122,14 @@ const Checkout = () => {
   };
 
   const handleCheckout = async () => {
-    // Validate form data
+    // If resuming pending transaction, use existing token
+    if (pendingTransaction) {
+      console.log('Resuming payment with existing token');
+      initiateMidtransPayment(pendingTransaction.snap_token, pendingTransaction.order_id);
+      return;
+    }
+
+    // Validate form data for new transaction
     if (!formData.nama || !formData.email || !formData.phone || !formData.alamat) {
       toast({
         title: "Data Tidak Lengkap",
@@ -121,30 +177,7 @@ const Checkout = () => {
       }
 
       console.log('Received token from edge function:', data);
-
-      // Initialize Midtrans Snap
-      window.snap.pay(data.token, {
-        onSuccess: function(result: any) {
-          console.log('Payment success:', result);
-          toast({
-            title: "Pembayaran Berhasil",
-            description: "Terima kasih! Pembayaran Anda telah berhasil."
-          });
-          navigate(`/payment/success?order_id=${orderId}&transaction_status=settlement`);
-        },
-        onPending: function(result: any) {
-          console.log('Payment pending:', result);
-          navigate(`/payment/unfinish?order_id=${orderId}`);
-        },
-        onError: function(result: any) {
-          console.log('Payment error:', result);
-          navigate(`/payment/error?order_id=${orderId}&status_code=${result.status_code}&status_message=${result.status_message}`);
-        },
-        onClose: function() {
-          console.log('Payment popup closed');
-          navigate(`/payment/unfinish?order_id=${orderId}`);
-        }
-      });
+      initiateMidtransPayment(data.token, orderId);
 
     } catch (error) {
       console.error('Checkout error:', error);
@@ -155,6 +188,56 @@ const Checkout = () => {
       });
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const initiateMidtransPayment = (token: string, orderId: string) => {
+    // Initialize Midtrans Snap
+    window.snap.pay(token, {
+      onSuccess: function(result: any) {
+        console.log('Payment success:', result);
+        updateTransactionStatus(orderId, 'success');
+        toast({
+          title: "Pembayaran Berhasil",
+          description: "Terima kasih! Pembayaran Anda telah berhasil."
+        });
+        navigate(`/payment/success?order_id=${orderId}&transaction_status=settlement`);
+      },
+      onPending: function(result: any) {
+        console.log('Payment pending:', result);
+        updateTransactionStatus(orderId, 'pending');
+        navigate(`/payment/unfinish?order_id=${orderId}`);
+      },
+      onError: function(result: any) {
+        console.log('Payment error:', result);
+        updateTransactionStatus(orderId, 'failed');
+        navigate(`/payment/error?order_id=${orderId}&status_code=${result.status_code}&status_message=${result.status_message}`);
+      },
+      onClose: function() {
+        console.log('Payment popup closed');
+        // Don't update status here, keep as pending so user can resume
+        navigate(`/payment/unfinish?order_id=${orderId}`);
+      }
+    });
+  };
+
+  const updateTransactionStatus = async (orderId: string, status: string) => {
+    try {
+      const { error } = await supabase
+        .from('midtrans_transactions')
+        .update({ 
+          status: status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('order_id', orderId);
+
+      if (error) {
+        console.error('Error updating transaction status:', error);
+      } else {
+        console.log(`Transaction ${orderId} status updated to: ${status}`);
+      }
+    } catch (error) {
+      console.error('Error updating transaction status:', error);
     }
   };
 
@@ -192,12 +275,43 @@ const Checkout = () => {
         >
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Checkout Pesanan
+              {pendingTransaction ? "Lanjutkan Pembayaran" : "Checkout Pesanan"}
             </h1>
             <p className="text-lg text-gray-600">
-              Lengkapi data Anda untuk melanjutkan proses pemesanan undangan digital
+              {pendingTransaction 
+                ? "Anda memiliki transaksi yang belum selesai. Silakan lanjutkan pembayaran."
+                : "Lengkapi data Anda untuk melanjutkan proses pemesanan undangan digital"
+              }
             </p>
           </div>
+
+          {pendingTransaction && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <Card className="border-orange-200 bg-orange-50">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-orange-800">
+                        Transaksi Tertunda
+                      </p>
+                      <p className="text-xs text-orange-600">
+                        Order ID: {pendingTransaction.order_id}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Column - Form */}
@@ -213,7 +327,10 @@ const Checkout = () => {
                     Informasi Pemesanan
                   </CardTitle>
                   <CardDescription>
-                    Isi data Anda dengan lengkap dan benar
+                    {pendingTransaction 
+                      ? "Data yang tersimpan dari transaksi sebelumnya"
+                      : "Isi data Anda dengan lengkap dan benar"
+                    }
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -227,6 +344,7 @@ const Checkout = () => {
                       value={formData.nama}
                       onChange={handleInputChange}
                       required
+                      disabled={!!pendingTransaction}
                     />
                   </div>
 
@@ -240,6 +358,7 @@ const Checkout = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
+                      disabled={!!pendingTransaction}
                     />
                   </div>
 
@@ -253,33 +372,38 @@ const Checkout = () => {
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
+                      disabled={!!pendingTransaction}
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="alamat">Alamat *</Label>
-                    <Textarea
-                      id="alamat"
-                      name="alamat"
-                      placeholder="Masukkan alamat lengkap"
-                      value={formData.alamat}
-                      onChange={handleInputChange}
-                      className="min-h-[80px]"
-                      required
-                    />
-                  </div>
+                  {!pendingTransaction && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="alamat">Alamat *</Label>
+                        <Textarea
+                          id="alamat"
+                          name="alamat"
+                          placeholder="Masukkan alamat lengkap"
+                          value={formData.alamat}
+                          onChange={handleInputChange}
+                          className="min-h-[80px]"
+                          required
+                        />
+                      </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="catatan">Catatan Tambahan</Label>
-                    <Textarea
-                      id="catatan"
-                      name="catatan"
-                      placeholder="Catatan khusus untuk pesanan Anda (opsional)"
-                      value={formData.catatan}
-                      onChange={handleInputChange}
-                      className="min-h-[80px]"
-                    />
-                  </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="catatan">Catatan Tambahan</Label>
+                        <Textarea
+                          id="catatan"
+                          name="catatan"
+                          placeholder="Catatan khusus untuk pesanan Anda (opsional)"
+                          value={formData.catatan}
+                          onChange={handleInputChange}
+                          className="min-h-[80px]"
+                        />
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
@@ -319,14 +443,16 @@ const Checkout = () => {
                     </div>
                   </div>
                   
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => navigate("/")}
-                    className="w-full"
-                  >
-                    Ubah Pilihan
-                  </Button>
+                  {!pendingTransaction && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => navigate("/")}
+                      className="w-full"
+                    >
+                      Ubah Pilihan
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
 
@@ -358,7 +484,8 @@ const Checkout = () => {
                     size="lg"
                     disabled={isProcessing || !isSnapLoaded}
                   >
-                    {isProcessing ? "Memproses..." : !isSnapLoaded ? "Memuat..." : "Bayar Sekarang"}
+                    {isProcessing ? "Memproses..." : !isSnapLoaded ? "Memuat..." : 
+                     pendingTransaction ? "Lanjutkan Pembayaran" : "Bayar Sekarang"}
                   </Button>
 
                   <p className="text-xs text-gray-500 text-center mt-3">
