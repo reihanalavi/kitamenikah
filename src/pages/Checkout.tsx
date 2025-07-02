@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,8 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Package, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import Navigation from "@/components/layout/Navigation";
+import Footer from "@/components/layout/Footer";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -16,6 +19,8 @@ const Checkout = () => {
   const [searchParams] = useSearchParams();
   const resumeOrderId = searchParams.get('resume_order_id');
   
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [formData, setFormData] = useState({
     nama: "",
     email: "",
@@ -27,8 +32,44 @@ const Checkout = () => {
   const [isSnapLoaded, setIsSnapLoaded] = useState(false);
   const [pendingTransaction, setPendingTransaction] = useState<any>(null);
 
+  // Check authentication first
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Login Required",
+          description: "Anda harus login terlebih dahulu untuk melakukan checkout.",
+        });
+        navigate("/auth");
+        return;
+      }
+
+      setUser(session.user);
+      setAuthLoading(false);
+      
+      // Pre-fill email from user session
+      setFormData(prev => ({
+        ...prev,
+        email: session.user.email || "",
+        nama: session.user.user_metadata?.name || session.user.user_metadata?.full_name || ""
+      }));
+
+    } catch (error) {
+      console.error('Auth check error:', error);
+      navigate("/auth");
+    }
+  };
+
   // Load Midtrans Snap script
   useEffect(() => {
+    if (!user) return;
+
     const script = document.createElement('script');
     script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
     script.setAttribute('data-client-key', 'SB-Mid-client-IyRoK03bZbfDRlWA');
@@ -48,20 +89,19 @@ const Checkout = () => {
     document.head.appendChild(script);
 
     return () => {
-      // Cleanup script on component unmount
       const existingScript = document.querySelector('script[src="https://app.sandbox.midtrans.com/snap/snap.js"]');
       if (existingScript) {
         document.head.removeChild(existingScript);
       }
     };
-  }, [toast]);
+  }, [user, toast]);
 
   // Check for pending transaction if resuming
   useEffect(() => {
-    if (resumeOrderId && isSnapLoaded) {
+    if (resumeOrderId && isSnapLoaded && user) {
       checkPendingTransaction();
     }
-  }, [resumeOrderId, isSnapLoaded]);
+  }, [resumeOrderId, isSnapLoaded, user]);
 
   const checkPendingTransaction = async () => {
     try {
@@ -83,12 +123,11 @@ const Checkout = () => {
       }
 
       setPendingTransaction(data);
-      // Pre-fill form with saved data
       setFormData({
         nama: data.customer_name,
         email: data.customer_email,
         phone: data.customer_phone,
-        alamat: "", // We don't save alamat in transaction table
+        alamat: "",
         catatan: ""
       });
 
@@ -103,7 +142,7 @@ const Checkout = () => {
 
   // Dummy data for the purchased item
   const purchasedItem = {
-    type: "template", // or "pricing"
+    type: "template",
     name: "Template Elegant Rose",
     price: 150000,
     description: "Template undangan digital dengan desain elegan dan romantis"
@@ -122,6 +161,16 @@ const Checkout = () => {
   };
 
   const handleCheckout = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "Sesi login bermasalah. Silakan login ulang.",
+        variant: "destructive"
+      });
+      navigate("/auth");
+      return;
+    }
+
     // If resuming pending transaction, use existing token
     if (pendingTransaction) {
       console.log('Resuming payment with existing token');
@@ -161,7 +210,8 @@ const Checkout = () => {
         customerEmail: formData.email,
         customerPhone: formData.phone,
         itemId: 'template-1',
-        itemName: purchasedItem.name
+        itemName: purchasedItem.name,
+        userId: user.id
       };
 
       console.log('Processing checkout with order data:', orderData);
@@ -192,7 +242,6 @@ const Checkout = () => {
   };
 
   const initiateMidtransPayment = (token: string, orderId: string) => {
-    // Initialize Midtrans Snap
     window.snap.pay(token, {
       onSuccess: function(result: any) {
         console.log('Payment success:', result);
@@ -215,7 +264,6 @@ const Checkout = () => {
       },
       onClose: function() {
         console.log('Payment popup closed');
-        // Don't update status here, keep as pending so user can resume
         navigate(`/payment/unfinish?order_id=${orderId}`);
       }
     });
@@ -241,32 +289,26 @@ const Checkout = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
-      {/* Header */}
-      <motion.div 
-        className="bg-white shadow-sm border-b"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="text-2xl font-bold text-gray-900 hover:text-slate-700 transition-colors">
-              KitaMenikah
-            </Link>
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate("/")}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Kembali
-            </Button>
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900 mx-auto mb-4"></div>
+            <p className="text-gray-600">Memverifikasi akses...</p>
           </div>
         </div>
-      </motion.div>
+        <Footer />
+      </div>
+    );
+  }
 
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
+      <Navigation />
+      
       <div className="max-w-4xl mx-auto px-6 lg:px-8 py-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -358,7 +400,7 @@ const Checkout = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      disabled={!!pendingTransaction}
+                      disabled={true} // Always disabled, filled from user session
                     />
                   </div>
 
@@ -518,6 +560,8 @@ const Checkout = () => {
           </div>
         </motion.div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

@@ -107,7 +107,7 @@ serve(async (req) => {
       );
     }
 
-    // Save transaction to database
+    // Save transaction to database with user_id
     const { error: insertError } = await supabase
       .from('midtrans_transactions')
       .insert({
@@ -119,14 +119,15 @@ serve(async (req) => {
         customer_email: orderData.customerEmail,
         customer_phone: orderData.customerPhone,
         item_name: orderData.itemName,
-        status: 'pending'
+        status: 'pending',
+        user_id: orderData.userId  // Add user_id from orderData
       });
 
     if (insertError) {
       console.error('Error saving transaction to database:', insertError);
       // Still return the token even if DB save fails
     } else {
-      console.log('Transaction saved to database successfully');
+      console.log('Transaction saved to database successfully with user_id:', orderData.userId);
     }
 
     return new Response(
