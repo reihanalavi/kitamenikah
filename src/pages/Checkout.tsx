@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +21,36 @@ const Checkout = () => {
     catatan: ""
   });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSnapLoaded, setIsSnapLoaded] = useState(false);
+
+  // Load Midtrans Snap script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+    script.setAttribute('data-client-key', 'SB-Mid-client-IyRoK03bZbfDRlWA');
+    script.onload = () => {
+      console.log('Midtrans Snap script loaded successfully');
+      setIsSnapLoaded(true);
+    };
+    script.onerror = () => {
+      console.error('Failed to load Midtrans Snap script');
+      toast({
+        title: "Error",
+        description: "Gagal memuat sistem pembayaran. Silakan refresh halaman.",
+        variant: "destructive"
+      });
+    };
+    
+    document.head.appendChild(script);
+
+    return () => {
+      // Cleanup script on component unmount
+      const existingScript = document.querySelector('script[src="https://app.sandbox.midtrans.com/snap/snap.js"]');
+      if (existingScript) {
+        document.head.removeChild(existingScript);
+      }
+    };
+  }, [toast]);
 
   // Dummy data for the purchased item
   const purchasedItem = {
@@ -49,6 +78,16 @@ const Checkout = () => {
       toast({
         title: "Data Tidak Lengkap",
         description: "Mohon lengkapi semua data yang wajib diisi",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if Snap is loaded
+    if (!isSnapLoaded || !window.snap) {
+      toast({
+        title: "Error",
+        description: "Sistem pembayaran belum siap. Silakan coba lagi dalam beberapa detik.",
         variant: "destructive"
       });
       return;
@@ -84,32 +123,28 @@ const Checkout = () => {
       console.log('Received token from edge function:', data);
 
       // Initialize Midtrans Snap
-      if (window.snap) {
-        window.snap.pay(data.token, {
-          onSuccess: function(result: any) {
-            console.log('Payment success:', result);
-            toast({
-              title: "Pembayaran Berhasil",
-              description: "Terima kasih! Pembayaran Anda telah berhasil."
-            });
-            navigate(`/payment/success?order_id=${orderId}&transaction_status=settlement`);
-          },
-          onPending: function(result: any) {
-            console.log('Payment pending:', result);
-            navigate(`/payment/unfinish?order_id=${orderId}`);
-          },
-          onError: function(result: any) {
-            console.log('Payment error:', result);
-            navigate(`/payment/error?order_id=${orderId}&status_code=${result.status_code}&status_message=${result.status_message}`);
-          },
-          onClose: function() {
-            console.log('Payment popup closed');
-            navigate(`/payment/unfinish?order_id=${orderId}`);
-          }
-        });
-      } else {
-        throw new Error('Midtrans Snap not loaded');
-      }
+      window.snap.pay(data.token, {
+        onSuccess: function(result: any) {
+          console.log('Payment success:', result);
+          toast({
+            title: "Pembayaran Berhasil",
+            description: "Terima kasih! Pembayaran Anda telah berhasil."
+          });
+          navigate(`/payment/success?order_id=${orderId}&transaction_status=settlement`);
+        },
+        onPending: function(result: any) {
+          console.log('Payment pending:', result);
+          navigate(`/payment/unfinish?order_id=${orderId}`);
+        },
+        onError: function(result: any) {
+          console.log('Payment error:', result);
+          navigate(`/payment/error?order_id=${orderId}&status_code=${result.status_code}&status_message=${result.status_message}`);
+        },
+        onClose: function() {
+          console.log('Payment popup closed');
+          navigate(`/payment/unfinish?order_id=${orderId}`);
+        }
+      });
 
     } catch (error) {
       console.error('Checkout error:', error);
@@ -125,12 +160,6 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
-      {/* Load Midtrans Snap script */}
-      <script 
-        src="https://app.sandbox.midtrans.com/snap/snap.js" 
-        data-client-key="SB-Mid-client-IyRoK03bZbfDRlWA"
-      ></script>
-
       {/* Header */}
       <motion.div 
         className="bg-white shadow-sm border-b"
@@ -327,9 +356,9 @@ const Checkout = () => {
                     onClick={handleCheckout}
                     className="w-full mt-6 bg-slate-900 hover:bg-slate-800"
                     size="lg"
-                    disabled={isProcessing}
+                    disabled={isProcessing || !isSnapLoaded}
                   >
-                    {isProcessing ? "Memproses..." : "Bayar Sekarang"}
+                    {isProcessing ? "Memproses..." : !isSnapLoaded ? "Memuat..." : "Bayar Sekarang"}
                   </Button>
 
                   <p className="text-xs text-gray-500 text-center mt-3">
