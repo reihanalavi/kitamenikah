@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,11 +14,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, ExternalLink, CreditCard, Calendar, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ExternalLink, CreditCard, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
-import { forceUpdateTransactionStatus } from "@/utils/forceStatusUpdate";
 
 interface Transaction {
   id: string;
@@ -37,7 +37,6 @@ const Transactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -89,29 +88,6 @@ const Transactions = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleForceUpdate = async (orderId: string, newStatus: 'success' | 'failed') => {
-    setUpdatingStatus(orderId);
-    
-    const result = await forceUpdateTransactionStatus(orderId, newStatus);
-    
-    if (result.success) {
-      toast({
-        title: "Status Updated",
-        description: `Transaction ${orderId} updated to ${newStatus}`,
-      });
-      // Refresh transactions
-      await fetchTransactions();
-    } else {
-      toast({
-        title: "Update Failed",
-        description: result.error,
-        variant: "destructive",
-      });
-    }
-    
-    setUpdatingStatus(null);
   };
 
   const getStatusBadge = (status: string) => {
@@ -281,40 +257,26 @@ const Transactions = () => {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex gap-2">
-                              {transaction.status === 'pending' && (
-                                <>
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handlePaymentResume(transaction)}
-                                    className="bg-slate-900 hover:bg-slate-800"
-                                  >
-                                    <ExternalLink className="h-4 w-4 mr-2" />
-                                    Lanjutkan Bayar
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleForceUpdate(transaction.order_id, 'success')}
-                                    disabled={updatingStatus === transaction.order_id}
-                                    className="text-green-600 border-green-600 hover:bg-green-50"
-                                  >
-                                    <AlertTriangle className="h-4 w-4 mr-2" />
-                                    {updatingStatus === transaction.order_id ? 'Updating...' : 'Mark Success'}
-                                  </Button>
-                                </>
-                              )}
-                              {transaction.status === 'success' && (
-                                <Badge variant="outline" className="text-green-600 border-green-600">
-                                  Selesai
-                                </Badge>
-                              )}
-                              {transaction.status === 'failed' && (
-                                <Badge variant="outline" className="text-red-600 border-red-600">
-                                  Gagal
-                                </Badge>
-                              )}
-                            </div>
+                            {transaction.status === 'pending' && (
+                              <Button
+                                size="sm"
+                                onClick={() => handlePaymentResume(transaction)}
+                                className="bg-slate-900 hover:bg-slate-800"
+                              >
+                                <ExternalLink className="h-4 w-4 mr-2" />
+                                Lanjutkan Bayar
+                              </Button>
+                            )}
+                            {transaction.status === 'success' && (
+                              <Badge variant="outline" className="text-green-600 border-green-600">
+                                Selesai
+                              </Badge>
+                            )}
+                            {transaction.status === 'failed' && (
+                              <Badge variant="outline" className="text-red-600 border-red-600">
+                                Gagal
+                              </Badge>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
