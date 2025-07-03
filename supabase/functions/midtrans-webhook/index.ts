@@ -12,11 +12,13 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  console.log('=== MIDTRANS WEBHOOK RECEIVED ===')
+  console.log('🔥 MIDTRANS WEBHOOK RECEIVED!')
   console.log('Method:', req.method)
+  console.log('URL:', req.url)
   console.log('Headers:', Object.fromEntries(req.headers.entries()))
 
   try {
+    // Use SERVICE ROLE KEY for webhook updates (bypass RLS)
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -24,7 +26,7 @@ serve(async (req) => {
 
     // Parse webhook data from Midtrans
     const notification = await req.json()
-    console.log('=== MIDTRANS NOTIFICATION DATA ===')
+    console.log('🔥 MIDTRANS NOTIFICATION DATA:')
     console.log(JSON.stringify(notification, null, 2))
 
     const {
@@ -46,10 +48,10 @@ serve(async (req) => {
       })
     }
 
-    console.log(`📝 Processing order: ${order_id}`)
-    console.log(`📝 Transaction status: ${transaction_status}`)
-    console.log(`📝 Fraud status: ${fraud_status}`)
-    console.log(`📝 Status code: ${status_code}`)
+    console.log(`🔥 Processing order: ${order_id}`)
+    console.log(`🔥 Transaction status: ${transaction_status}`)
+    console.log(`🔥 Fraud status: ${fraud_status}`)
+    console.log(`🔥 Status code: ${status_code}`)
 
     // Check if transaction exists first
     const { data: existingTransaction, error: checkError } = await supabaseClient
@@ -58,15 +60,20 @@ serve(async (req) => {
       .eq('order_id', order_id)
       .single()
 
-    if (checkError) {
-      console.error('❌ Error checking existing transaction:', checkError)
-      return new Response(JSON.stringify({ error: 'Transaction not found' }), {
-        status: 404,
+    if (checkError || !existingTransaction) {
+      console.error('❌ Transaction not found:', checkError)
+      console.log('🔥 Creating webhook response for non-existent transaction')
+      return new Response(JSON.stringify({ 
+        error: 'Transaction not found',
+        order_id: order_id,
+        message: 'This is normal if webhook comes before transaction creation'
+      }), {
+        status: 200, // Return 200 so Midtrans doesn't retry
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    console.log('📝 Current transaction status in DB:', existingTransaction.status)
+    console.log('🔥 Current transaction in DB:', JSON.stringify(existingTransaction, null, 2))
 
     // Determine final status based on Midtrans response
     let finalStatus = 'pending'
@@ -83,10 +90,10 @@ serve(async (req) => {
       finalStatus = 'failed'
     }
 
-    console.log(`🔄 Updating order ${order_id} status from '${existingTransaction.status}' to '${finalStatus}'`)
+    console.log(`🔥 UPDATING: ${existingTransaction.status} -> ${finalStatus}`)
 
-    // Update transaction status in database
-    const { data, error } = await supabaseClient
+    // Update transaction status in database using SERVICE ROLE (bypasses RLS)
+    const { data: updateData, error: updateError } = await supabaseClient
       .from('midtrans_transactions')
       .update({ 
         status: finalStatus,
@@ -95,54 +102,55 @@ serve(async (req) => {
       .eq('order_id', order_id)
       .select()
 
-    if (error) {
-      console.error('❌ Error updating transaction:', error)
+    if (updateError) {
+      console.error('❌ UPDATE ERROR:', updateError)
       return new Response(JSON.stringify({ 
         error: 'Failed to update transaction',
-        details: error.message 
+        details: updateError.message,
+        order_id: order_id
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    if (!data || data.length === 0) {
+    if (!updateData || updateData.length === 0) {
       console.log('⚠️ No rows updated for order_id:', order_id)
       return new Response(JSON.stringify({ 
         error: 'No transaction updated',
-        order_id 
+        order_id: order_id
       }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    console.log('✅ Transaction updated successfully:')
-    console.log('Updated data:', JSON.stringify(data[0], null, 2))
+    console.log('✅ TRANSACTION UPDATED SUCCESSFULLY!')
+    console.log('Updated data:', JSON.stringify(updateData[0], null, 2))
 
-    // Check if trigger fired by looking at the updated record
-    const { data: updatedRecord } = await supabaseClient
+    // Double check the update worked
+    const { data: verifyData } = await supabaseClient
       .from('midtrans_transactions')
       .select('*')
       .eq('order_id', order_id)
       .single()
 
-    console.log('📝 Final record in DB:', JSON.stringify(updatedRecord, null, 2))
+    console.log('🔥 VERIFICATION - Final record in DB:', JSON.stringify(verifyData, null, 2))
 
     return new Response(JSON.stringify({ 
       success: true, 
       message: 'Transaction updated successfully',
-      order_id,
+      order_id: order_id,
       old_status: existingTransaction.status,
       new_status: finalStatus,
-      updated_record: updatedRecord
+      updated_record: updateData[0]
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 
   } catch (error) {
-    console.error('❌ Error processing webhook:', error)
-    console.error('Error details:', error.message)
+    console.error('❌ WEBHOOK ERROR:', error)
+    console.error('Error message:', error.message)
     console.error('Stack trace:', error.stack)
     
     return new Response(JSON.stringify({ 
