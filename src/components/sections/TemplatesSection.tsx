@@ -8,27 +8,9 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useTemplates } from "@/hooks/useTemplates";
-import { usePricing } from "@/hooks/usePricing";
-import { useNavigate } from "react-router-dom";
 
 const TemplatesSection = () => {
   const { data: templates, isLoading, error } = useTemplates();
-  const { data: pricingData } = usePricing();
-  const navigate = useNavigate();
-
-  const handleBuyTemplate = (template: any) => {
-    // Find Basic package or lowest price package
-    const basicPackage = pricingData?.find(p => p.paket.toLowerCase().includes('basic')) || 
-                        pricingData?.reduce((prev, current) => 
-                          prev.harga_paket < current.harga_paket ? prev : current
-                        );
-    
-    if (basicPackage) {
-      navigate(`/checkout?template_id=${template.id}&pricing_id=${basicPackage.id}`);
-    } else {
-      navigate(`/checkout?template_id=${template.id}`);
-    }
-  };
 
   const handleWhatsAppContact = (templateName: string) => {
     const message = `Halo, saya tertarik dengan template ${templateName}. Bisa bantu saya untuk membuat undangan digital?`;
@@ -71,12 +53,6 @@ const TemplatesSection = () => {
     );
   }
 
-  // Get Basic package price for display
-  const basicPackage = pricingData?.find(p => p.paket.toLowerCase().includes('basic')) || 
-                      pricingData?.reduce((prev, current) => 
-                        prev.harga_paket < current.harga_paket ? prev : current
-                      );
-
   return (
     <section id="templates" className="py-24 sm:py-32 bg-gray-50">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -114,38 +90,43 @@ const TemplatesSection = () => {
                         {template.name}
                       </h3>
                       <p className="mt-2 text-2xl font-bold text-gray-900 select-none">
-                        Rp {basicPackage?.harga_paket.toLocaleString('id-ID') || '150.000'}
+                        Rp {template.price.toLocaleString('id-ID')}
                       </p>
                       <div className="mt-4 flex gap-x-3">
-                        {(template.previewUrl && template.previewUrl !== '') && (
+                        { (template.previewUrl || template.previewUrl != '') && (
                           <>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="flex-1 select-none"
-                              onClick={() => window.open(template.previewUrl, '_blank')}
-                            >
-                              Live Preview
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              className="flex-1 select-none"
-                              onClick={() => handleBuyTemplate(template)}
-                            >
-                              Beli Sekarang
-                            </Button>
-                          </>
-                        )}
-                        {(!template.previewUrl || template.previewUrl === '') && (
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            disabled 
-                            className="flex-1 bg-yellow-100 select-none"
-                          >
-                            Segera Hadir
-                          </Button>
-                        )}
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1 select-none"
+                          onClick={() => window.open(template.previewUrl, '_blank')}
+                        >
+                          Live Preview
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          className="flex-1 select-none"
+                          onClick={() => handleWhatsAppContact(template.name)}
+                        >
+                          Beli Sekarang
+                        </Button>
+                        </>
+                        )
+                        }
+                        { (!template.previewUrl || template.previewUrl == '') && (
+                          <>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          disabled 
+                          className="flex-1 bg-yellow-100 select-none"
+                          onClick={() => window.open(template.previewUrl, '_blank')}
+                        >
+                          Segera Hadir
+                        </Button>
+                        </>
+                        )
+                        }
                       </div>
                     </div>
                   </article>

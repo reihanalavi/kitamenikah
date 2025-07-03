@@ -18,15 +18,6 @@ const PaymentUnfinish = () => {
 
   const orderId = searchParams.get('order_id');
 
-  const handleResumePayment = () => {
-    if (orderId) {
-      // Navigate to checkout with resume parameter
-      navigate(`/checkout?resume_order_id=${orderId}`);
-    } else {
-      navigate("/checkout");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
@@ -53,7 +44,7 @@ const PaymentUnfinish = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-gray-600">
-                Pembayaran Anda belum diselesaikan. Jangan khawatir, pesanan Anda masih tersimpan dan dapat dilanjutkan.
+                Pembayaran Anda belum diselesaikan. Jangan khawatir, pesanan Anda masih tersimpan.
               </p>
               
               {orderId && (
@@ -66,13 +57,13 @@ const PaymentUnfinish = () => {
               <div className="bg-yellow-50 p-4 rounded-lg">
                 <p className="text-sm text-yellow-800">
                   <strong>Apa yang terjadi?</strong><br />
-                  Anda keluar dari halaman pembayaran sebelum menyelesaikan transaksi. Data pembayaran Anda telah tersimpan dengan aman.
+                  Anda keluar dari halaman pembayaran sebelum menyelesaikan transaksi.
                 </p>
               </div>
 
               <div className="space-y-3 pt-4">
                 <Button 
-                  onClick={handleResumePayment}
+                  onClick={() => navigate("/checkout")} 
                   className="w-full bg-slate-900 hover:bg-slate-800"
                   size="lg"
                 >

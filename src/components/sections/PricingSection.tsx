@@ -2,15 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { usePricing } from "@/hooks/usePricing";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 
 const PricingSection = () => {
   const { data: pricingData, isLoading, error } = usePricing();
-  const navigate = useNavigate();
-
-  const handleChoosePackage = (pricing: any) => {
-    navigate(`/checkout?pricing_id=${pricing.id}`);
-  };
 
   const handleWhatsAppContact = (paketName: string) => {
     const message = `Halo, saya tertarik dengan paket ${paketName}. Bisa minta informasi lebih lanjut?`;
@@ -125,7 +119,7 @@ const PricingSection = () => {
                 <Button 
                   className={`mt-8 ${isPopular ? '' : 'bg-white text-slate-600 ring-1 ring-inset ring-slate-200 hover:ring-slate-300'} select-none`}
                   variant={isPopular ? 'default' : 'outline'}
-                  onClick={() => handleChoosePackage(plan)}
+                  onClick={() => handleWhatsAppContact(plan.paket)}
                 >
                   Pilih Paket
                 </Button>
