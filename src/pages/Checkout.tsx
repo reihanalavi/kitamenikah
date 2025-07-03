@@ -7,17 +7,28 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Package, CreditCard } from "lucide-react";
+import { ArrowLeft, Package, CreditCard, Edit } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const resumeOrderId = searchParams.get('resume_order_id');
+  const templateId = searchParams.get('template_id');
+  const pricingId = searchParams.get('pricing_id');
   
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -31,6 +42,15 @@ const Checkout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSnapLoaded, setIsSnapLoaded] = useState(false);
   const [pendingTransaction, setPendingTransaction] = useState<any>(null);
+  
+  // Selected items state
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [selectedPricing, setSelectedPricing] = useState<any>(null);
+  
+  // Available options
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [pricingOptions, setPricingOptions] = useState<any[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
   // Check authentication first
   useEffect(() => {
@@ -63,6 +83,70 @@ const Checkout = () => {
     } catch (error) {
       console.error('Auth check error:', error);
       navigate("/auth");
+    }
+  };
+
+  // Load templates and pricing data
+  useEffect(() => {
+    if (!user) return;
+    loadInitialData();
+  }, [user, templateId, pricingId]);
+
+  const loadInitialData = async () => {
+    try {
+      setLoadingData(true);
+      
+      // Load templates
+      const { data: templatesData, error: templatesError } = await supabase
+        .from('Template')
+        .select('*')
+        .order('createdAt', { ascending: true });
+
+      if (templatesError) throw templatesError;
+      setTemplates(templatesData || []);
+
+      // Load pricing options
+      const { data: pricingData, error: pricingError } = await supabase
+        .from('Pricing')
+        .select(`
+          *,
+          PricingBenefit (
+            benefit
+          )
+        `)
+        .order('harga_paket', { ascending: true });
+
+      if (pricingError) throw pricingError;
+      setPricingOptions(pricingData || []);
+
+      // Set initial selections based on URL params
+      if (templateId && templatesData) {
+        const template = templatesData.find(t => t.id === templateId);
+        if (template) setSelectedTemplate(template);
+      }
+
+      if (pricingId && pricingData) {
+        const pricing = pricingData.find(p => p.id.toString() === pricingId);
+        if (pricing) {
+          setSelectedPricing(pricing);
+        }
+      } else if (pricingData && pricingData.length > 0) {
+        // Set default to lowest price package
+        const lowestPricing = pricingData.reduce((prev, current) => 
+          prev.harga_paket < current.harga_paket ? prev : current
+        );
+        setSelectedPricing(lowestPricing);
+      }
+
+    } catch (error) {
+      console.error('Error loading data:', error);
+      toast({
+        title: "Error",
+        description: "Gagal memuat data. Silakan refresh halaman.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingData(false);
     }
   };
 
@@ -140,14 +224,6 @@ const Checkout = () => {
     }
   };
 
-  // Dummy data for the purchased item
-  const purchasedItem = {
-    type: "template",
-    name: "Template Elegant Rose",
-    price: 150000,
-    description: "Template undangan digital dengan desain elegan dan romantis"
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -158,6 +234,13 @@ const Checkout = () => {
 
   const generateOrderId = () => {
     return 'ORDER-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+  };
+
+  const getTotalPrice = () => {
+    let total = 0;
+    if (selectedTemplate) total += selectedTemplate.price;
+    if (selectedPricing) total += selectedPricing.harga_paket;
+    return total;
   };
 
   const handleCheckout = async () => {
@@ -188,6 +271,16 @@ const Checkout = () => {
       return;
     }
 
+    // Check if items are selected
+    if (!selectedTemplate && !selectedPricing) {
+      toast({
+        title: "Pilihan Tidak Lengkap",
+        description: "Mohon pilih template atau paket terlebih dahulu",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Check if Snap is loaded
     if (!isSnapLoaded || !window.snap) {
       toast({
@@ -202,15 +295,16 @@ const Checkout = () => {
 
     try {
       const orderId = generateOrderId();
+      const totalAmount = getTotalPrice();
       
       const orderData = {
         orderId: orderId,
-        amount: purchasedItem.price,
+        amount: totalAmount,
         customerName: formData.nama,
         customerEmail: formData.email,
         customerPhone: formData.phone,
-        itemId: 'template-1',
-        itemName: purchasedItem.name,
+        itemId: selectedTemplate?.id || selectedPricing?.id || 'package-1',
+        itemName: `${selectedTemplate?.name || ''} ${selectedPricing?.paket || ''}`.trim(),
         userId: user.id
       };
 
@@ -289,8 +383,8 @@ const Checkout = () => {
     }
   };
 
-  // Show loading while checking auth
-  if (authLoading) {
+  // Show loading while checking auth or loading data
+  if (authLoading || loadingData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
         <Navigation />
@@ -400,7 +494,7 @@ const Checkout = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      disabled={true} // Always disabled, filled from user session
+                      disabled={true}
                     />
                   </div>
 
@@ -457,7 +551,7 @@ const Checkout = () => {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="space-y-6"
             >
-              {/* Purchased Item */}
+              {/* Selected Items */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -465,35 +559,210 @@ const Checkout = () => {
                     Item Pesanan
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">
-                        {purchasedItem.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-2">
-                        {purchasedItem.description}
-                      </p>
-                      <span className="inline-block px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded">
-                        {purchasedItem.type === "template" ? "Template" : "Paket"}
-                      </span>
+                <CardContent className="space-y-4">
+                  {/* Selected Template */}
+                  {selectedTemplate && (
+                    <div className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-medium text-gray-900">Template</h4>
+                        {!pendingTransaction && (
+                          <Drawer>
+                            <DrawerTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Edit className="w-4 h-4 mr-1" />
+                                Ubah Template
+                              </Button>
+                            </DrawerTrigger>
+                            <DrawerContent>
+                              <DrawerHeader>
+                                <DrawerTitle>Pilih Template</DrawerTitle>
+                                <DrawerDescription>
+                                  Pilih template undangan yang Anda inginkan
+                                </DrawerDescription>
+                              </DrawerHeader>
+                              <div className="px-4 pb-8 max-h-96 overflow-y-auto">
+                                <div className="grid grid-cols-2 gap-4">
+                                  {templates.map((template) => (
+                                    <div
+                                      key={template.id}
+                                      className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                                        selectedTemplate?.id === template.id 
+                                          ? 'border-slate-900 bg-slate-50' 
+                                          : 'border-gray-200 hover:border-slate-300'
+                                      }`}
+                                      onClick={() => {
+                                        setSelectedTemplate(template);
+                                        document.querySelector('[data-state="open"]')?.click();
+                                      }}
+                                    >
+                                      <img 
+                                        src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
+                                        alt={template.name}
+                                        className="w-full h-32 object-cover rounded mb-2"
+                                      />
+                                      <h5 className="font-medium text-sm">{template.name}</h5>
+                                      <p className="text-slate-600 text-sm">Rp {template.price.toLocaleString('id-ID')}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </DrawerContent>
+                          </Drawer>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mb-1">{selectedTemplate.name}</p>
+                      <p className="font-medium text-gray-900">Rp {selectedTemplate.price.toLocaleString('id-ID')}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-gray-900">
-                        Rp {purchasedItem.price.toLocaleString('id-ID')}
-                      </p>
+                  )}
+
+                  {/* Selected Pricing */}
+                  {selectedPricing && (
+                    <div className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-medium text-gray-900">Paket</h4>
+                        {!pendingTransaction && (
+                          <Drawer>
+                            <DrawerTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Edit className="w-4 h-4 mr-1" />
+                                Ubah Paket
+                              </Button>
+                            </DrawerTrigger>
+                            <DrawerContent>
+                              <DrawerHeader>
+                                <DrawerTitle>Pilih Paket</DrawerTitle>
+                                <DrawerDescription>
+                                  Pilih paket yang sesuai dengan kebutuhan Anda
+                                </DrawerDescription>
+                              </DrawerHeader>
+                              <div className="px-4 pb-8 max-h-96 overflow-y-auto">
+                                <div className="space-y-4">
+                                  {pricingOptions.map((pricing) => (
+                                    <div
+                                      key={pricing.id}
+                                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                                        selectedPricing?.id === pricing.id 
+                                          ? 'border-slate-900 bg-slate-50' 
+                                          : 'border-gray-200 hover:border-slate-300'
+                                      }`}
+                                      onClick={() => {
+                                        setSelectedPricing(pricing);
+                                        document.querySelector('[data-state="open"]')?.click();
+                                      }}
+                                    >
+                                      <div className="flex justify-between items-start mb-2">
+                                        <h5 className="font-semibold">{pricing.paket}</h5>
+                                        <p className="font-bold text-lg">Rp {pricing.harga_paket.toLocaleString('id-ID')}</p>
+                                      </div>
+                                      <p className="text-sm text-gray-600 mb-3">{pricing.deskripsi_paket}</p>
+                                      <ul className="text-xs text-gray-600 space-y-1">
+                                        {pricing.PricingBenefit?.slice(0, 3).map((benefit, idx) => (
+                                          <li key={idx} className="flex items-center gap-2">
+                                            <span className="text-green-500">✓</span>
+                                            {benefit.benefit}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </DrawerContent>
+                          </Drawer>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mb-1">{selectedPricing.paket}</p>
+                      <p className="font-medium text-gray-900">Rp {selectedPricing.harga_paket.toLocaleString('id-ID')}</p>
                     </div>
-                  </div>
-                  
-                  {!pendingTransaction && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => navigate("/")}
-                      className="w-full"
-                    >
-                      Ubah Pilihan
-                    </Button>
+                  )}
+
+                  {/* Add items buttons for empty states */}
+                  {!selectedTemplate && !pendingTransaction && (
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button variant="outline" className="w-full">
+                          <Package className="w-4 h-4 mr-2" />
+                          Pilih Template
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <DrawerHeader>
+                          <DrawerTitle>Pilih Template</DrawerTitle>
+                          <DrawerDescription>
+                            Pilih template undangan yang Anda inginkan
+                          </DrawerDescription>
+                        </DrawerHeader>
+                        <div className="px-4 pb-8 max-h-96 overflow-y-auto">
+                          <div className="grid grid-cols-2 gap-4">
+                            {templates.map((template) => (
+                              <div
+                                key={template.id}
+                                className="border rounded-lg p-3 cursor-pointer hover:border-slate-300 transition-all"
+                                onClick={() => {
+                                  setSelectedTemplate(template);
+                                  document.querySelector('[data-state="open"]')?.click();
+                                }}
+                              >
+                                <img 
+                                  src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
+                                  alt={template.name}
+                                  className="w-full h-32 object-cover rounded mb-2"
+                                />
+                                <h5 className="font-medium text-sm">{template.name}</h5>
+                                <p className="text-slate-600 text-sm">Rp {template.price.toLocaleString('id-ID')}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </DrawerContent>
+                    </Drawer>
+                  )}
+
+                  {!selectedPricing && !pendingTransaction && (
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button variant="outline" className="w-full">
+                          <Package className="w-4 h-4 mr-2" />
+                          Pilih Paket
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <DrawerHeader>
+                          <DrawerTitle>Pilih Paket</DrawerTitle>
+                          <DrawerDescription>
+                            Pilih paket yang sesuai dengan kebutuhan Anda
+                          </DrawerDescription>
+                        </DrawerHeader>
+                        <div className="px-4 pb-8 max-h-96 overflow-y-auto">
+                          <div className="space-y-4">
+                            {pricingOptions.map((pricing) => (
+                              <div
+                                key={pricing.id}
+                                className="border rounded-lg p-4 cursor-pointer hover:border-slate-300 transition-all"
+                                onClick={() => {
+                                  setSelectedPricing(pricing);
+                                  document.querySelector('[data-state="open"]')?.click();
+                                }}
+                              >
+                                <div className="flex justify-between items-start mb-2">
+                                  <h5 className="font-semibold">{pricing.paket}</h5>
+                                  <p className="font-bold text-lg">Rp {pricing.harga_paket.toLocaleString('id-ID')}</p>
+                                </div>
+                                <p className="text-sm text-gray-600 mb-3">{pricing.deskripsi_paket}</p>
+                                <ul className="text-xs text-gray-600 space-y-1">
+                                  {pricing.PricingBenefit?.slice(0, 3).map((benefit, idx) => (
+                                    <li key={idx} className="flex items-center gap-2">
+                                      <span className="text-green-500">✓</span>
+                                      {benefit.benefit}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </DrawerContent>
+                    </Drawer>
                   )}
                 </CardContent>
               </Card>
@@ -504,19 +773,24 @@ const Checkout = () => {
                   <CardTitle>Ringkasan Pembayaran</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span>Rp {purchasedItem.price.toLocaleString('id-ID')}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Biaya Admin</span>
-                    <span>Rp 0</span>
-                  </div>
+                  {selectedTemplate && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Template: {selectedTemplate.name}</span>
+                      <span>Rp {selectedTemplate.price.toLocaleString('id-ID')}</span>
+                    </div>
+                  )}
+                  {selectedPricing && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Paket: {selectedPricing.paket}</span>
+                      <span>Rp {selectedPricing.harga_paket.toLocaleString('id-ID')}</span>
+                    </div>
+                  )}
+                  
                   <hr />
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total</span>
                     <span className="text-slate-900">
-                      Rp {purchasedItem.price.toLocaleString('id-ID')}
+                      Rp {getTotalPrice().toLocaleString('id-ID')}
                     </span>
                   </div>
 
@@ -524,7 +798,7 @@ const Checkout = () => {
                     onClick={handleCheckout}
                     className="w-full mt-6 bg-slate-900 hover:bg-slate-800"
                     size="lg"
-                    disabled={isProcessing || !isSnapLoaded}
+                    disabled={isProcessing || !isSnapLoaded || getTotalPrice() === 0}
                   >
                     {isProcessing ? "Memproses..." : !isSnapLoaded ? "Memuat..." : 
                      pendingTransaction ? "Lanjutkan Pembayaran" : "Bayar Sekarang"}

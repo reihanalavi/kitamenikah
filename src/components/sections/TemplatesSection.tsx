@@ -8,9 +8,15 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useTemplates } from "@/hooks/useTemplates";
+import { useNavigate } from "react-router-dom";
 
 const TemplatesSection = () => {
   const { data: templates, isLoading, error } = useTemplates();
+  const navigate = useNavigate();
+
+  const handleBuyTemplate = (template: any) => {
+    navigate(`/checkout?template_id=${template.id}`);
+  };
 
   const handleWhatsAppContact = (templateName: string) => {
     const message = `Halo, saya tertarik dengan template ${templateName}. Bisa bantu saya untuk membuat undangan digital?`;
@@ -93,40 +99,35 @@ const TemplatesSection = () => {
                         Rp {template.price.toLocaleString('id-ID')}
                       </p>
                       <div className="mt-4 flex gap-x-3">
-                        { (template.previewUrl || template.previewUrl != '') && (
+                        {(template.previewUrl && template.previewUrl !== '') && (
                           <>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1 select-none"
-                          onClick={() => window.open(template.previewUrl, '_blank')}
-                        >
-                          Live Preview
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          className="flex-1 select-none"
-                          onClick={() => handleWhatsAppContact(template.name)}
-                        >
-                          Beli Sekarang
-                        </Button>
-                        </>
-                        )
-                        }
-                        { (!template.previewUrl || template.previewUrl == '') && (
-                          <>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          disabled 
-                          className="flex-1 bg-yellow-100 select-none"
-                          onClick={() => window.open(template.previewUrl, '_blank')}
-                        >
-                          Segera Hadir
-                        </Button>
-                        </>
-                        )
-                        }
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1 select-none"
+                              onClick={() => window.open(template.previewUrl, '_blank')}
+                            >
+                              Live Preview
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              className="flex-1 select-none"
+                              onClick={() => handleBuyTemplate(template)}
+                            >
+                              Beli Sekarang
+                            </Button>
+                          </>
+                        )}
+                        {(!template.previewUrl || template.previewUrl === '') && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            disabled 
+                            className="flex-1 bg-yellow-100 select-none"
+                          >
+                            Segera Hadir
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </article>
