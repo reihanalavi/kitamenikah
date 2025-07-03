@@ -48,32 +48,32 @@ export type Database = {
           customUrl: string | null
           id: string
           orderId: string
-          publicUrl: string | null
-          slug: string | null
+          publicUrl: string
+          slug: string
         }
         Insert: {
           createdAt?: string
           customUrl?: string | null
           id: string
           orderId: string
-          publicUrl?: string | null
-          slug?: string | null
+          publicUrl: string
+          slug: string
         }
         Update: {
           createdAt?: string
           customUrl?: string | null
           id?: string
           orderId?: string
-          publicUrl?: string | null
-          slug?: string | null
+          publicUrl?: string
+          slug?: string
         }
         Relationships: [
           {
             foreignKeyName: "Invitation_orderId_fkey"
             columns: ["orderId"]
             isOneToOne: false
-            referencedRelation: "midtrans_transactions"
-            referencedColumns: ["order_id"]
+            referencedRelation: "Order"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -83,7 +83,7 @@ export type Database = {
           createdAt: string
           id: string
           invitationId: string
-          mode: string | null
+          mode: string
           updatedAt: string
         }
         Insert: {
@@ -91,7 +91,7 @@ export type Database = {
           createdAt?: string
           id: string
           invitationId: string
-          mode?: string | null
+          mode: string
           updatedAt?: string
         }
         Update: {
@@ -99,7 +99,7 @@ export type Database = {
           createdAt?: string
           id?: string
           invitationId?: string
-          mode?: string | null
+          mode?: string
           updatedAt?: string
         }
         Relationships: [
