@@ -8,127 +8,147 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { orderData } = await req.json()
-    console.log('Received order data:', orderData)
+    const { orderData, resumeOrderId } = await req.json();
+    console.log('Received request:', { orderData, resumeOrderId });
 
     // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get Midtrans server key
-    const midtransServerKey = Deno.env.get('MIDTRANS_SERVER_KEY')
-    if (!midtransServerKey) {
-      throw new Error('Midtrans server key not configured')
+    // If resuming existing order, fetch from database
+    if (resumeOrderId) {
+      console.log('Resuming order:', resumeOrderId);
+      
+      const { data: existingTransaction, error: fetchError } = await supabase
+        .from('midtrans_transactions')
+        .select('*')
+        .eq('order_id', resumeOrderId)
+        .eq('status', 'pending')
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching existing transaction:', fetchError);
+        return new Response(
+          JSON.stringify({ error: 'Transaction not found or already completed' }),
+          { 
+            status: 404, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          token: existingTransaction.snap_token,
+          redirect_url: existingTransaction.redirect_url 
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
-    // Create authorization header for Midtrans
-    const auth = btoa(midtransServerKey + ':')
+    // Create new transaction
+    const serverKey = 'SB-Mid-server-z0c-vp_RqRhCTImkjcEwPioM';
+    const encodedServerKey = btoa(serverKey + ':');
 
-    // Prepare transaction details for Midtrans
-    const transactionDetails = {
+    const parameter = {
       transaction_details: {
         order_id: orderData.orderId,
-        gross_amount: orderData.amount
+        gross_amount: parseInt(orderData.amount)
       },
       credit_card: {
         secure: true
       },
       customer_details: {
         first_name: orderData.customerName,
-        last_name: "",
         email: orderData.customerEmail,
         phone: orderData.customerPhone
       },
-      item_details: [
-        {
-          id: orderData.itemId,
-          price: orderData.amount,
-          quantity: 1,
-          name: orderData.itemName
-        }
-      ]
-    }
+      item_details: [{
+        id: orderData.itemId,
+        price: parseInt(orderData.amount),
+        quantity: 1,
+        name: orderData.itemName
+      }]
+    };
 
-    console.log('Sending to Midtrans:', JSON.stringify(transactionDetails, null, 2))
+    console.log('Creating Snap token with parameter:', parameter);
 
-    // Create transaction with Midtrans
-    const midtransResponse = await fetch('https://app.sandbox.midtrans.com/snap/v1/transactions', {
+    const response = await fetch('https://app.sandbox.midtrans.com/snap/v1/transactions', {
       method: 'POST',
       headers: {
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${auth}`,
-        'Accept': 'application/json'
+        'Authorization': `Basic ${encodedServerKey}`
       },
-      body: JSON.stringify(transactionDetails)
-    })
+      body: JSON.stringify(parameter)
+    });
 
-    const midtransData = await midtransResponse.json()
-    console.log('Midtrans response:', midtransData)
+    const snapResponse = await response.json();
+    console.log('Midtrans response:', snapResponse);
 
-    if (!midtransResponse.ok) {
-      console.error('Midtrans error:', midtransData)
-      throw new Error(`Midtrans API error: ${midtransData.error_messages?.[0] || 'Unknown error'}`)
+    if (!response.ok) {
+      console.error('Midtrans API error:', snapResponse);
+      return new Response(
+        JSON.stringify({ error: snapResponse.error_messages || 'Failed to create transaction' }),
+        { 
+          status: response.status, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
-    // Store transaction in database with separate pricing and template info
-    const { error: dbError } = await supabase
+    // Save transaction to database with user_id
+    const { error: insertError } = await supabase
       .from('midtrans_transactions')
       .insert({
         order_id: orderData.orderId,
-        snap_token: midtransData.token,
-        amount: orderData.amount,
+        snap_token: snapResponse.token,
+        redirect_url: snapResponse.redirect_url,
+        amount: parseInt(orderData.amount),
         customer_name: orderData.customerName,
         customer_email: orderData.customerEmail,
         customer_phone: orderData.customerPhone,
         item_name: orderData.itemName,
         status: 'pending',
-        user_id: orderData.userId,
-        pricing_package_id: orderData.pricingPackageId,
-        pricing_package_name: orderData.pricingPackageName,
-        template_id: orderData.templateId,
-        template_name: orderData.templateName,
-        redirect_url: midtransData.redirect_url
-      })
+        user_id: orderData.userId  // Add user_id from orderData
+      });
 
-    if (dbError) {
-      console.error('Database error:', dbError)
-      throw new Error('Failed to store transaction in database')
+    if (insertError) {
+      console.error('Error saving transaction to database:', insertError);
+      // Still return the token even if DB save fails
+    } else {
+      console.log('Transaction saved to database successfully with user_id:', orderData.userId);
     }
 
-    console.log('Transaction stored successfully')
-
     return new Response(
       JSON.stringify({ 
-        token: midtransData.token,
-        redirect_url: midtransData.redirect_url 
+        token: snapResponse.token,
+        redirect_url: snapResponse.redirect_url 
       }),
       { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
-    )
+    );
 
   } catch (error) {
-    console.error('Error in create-midtrans-token:', error)
+    console.error('Edge function error:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'An unexpected error occurred' 
-      }),
+      JSON.stringify({ error: 'Internal server error' }),
       { 
-        status: 400,
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
-    )
+    );
   }
-})
+});
