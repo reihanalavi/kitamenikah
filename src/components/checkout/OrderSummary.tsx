@@ -1,7 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package } from "lucide-react";
+import { Package, Edit } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface OrderSummaryProps {
   selectedPricing: any;
@@ -22,6 +23,16 @@ const OrderSummary = ({
   isProcessing, 
   isSnapLoaded 
 }: OrderSummaryProps) => {
+  const navigate = useNavigate();
+
+  const handleChangePackage = () => {
+    navigate('/#pricing');
+  };
+
+  const handleChangeTemplate = () => {
+    navigate('/templates');
+  };
+
   return (
     <>
       {/* Selected Items */}
@@ -37,21 +48,45 @@ const OrderSummary = ({
             <div className="border rounded-lg p-4">
               <div className="flex justify-between items-start mb-3">
                 <h4 className="font-semibold text-lg text-gray-900">{selectedPricing.paket}</h4>
+                {!pendingTransaction && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleChangePackage}
+                    className="text-xs"
+                  >
+                    <Edit className="w-3 h-3 mr-1" />
+                    Ubah Paket
+                  </Button>
+                )}
               </div>
               
               {/* Template included in package */}
               {selectedTemplate && (
                 <div className="ml-4 border-l-2 border-gray-200 pl-4 mt-3">
-                  <div className="flex items-center gap-3">
-                    <img 
-                      src={selectedTemplate.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
-                      alt={selectedTemplate.name}
-                      className="w-12 h-16 object-cover rounded"
-                    />
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-600">Include Template:</p>
-                      <p className="font-medium text-gray-900">{selectedTemplate.name}</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={selectedTemplate.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
+                        alt={selectedTemplate.name}
+                        className="w-12 h-16 object-cover rounded"
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-600">Include Template:</p>
+                        <p className="font-medium text-gray-900">{selectedTemplate.name}</p>
+                      </div>
                     </div>
+                    {!pendingTransaction && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleChangeTemplate}
+                        className="text-xs"
+                      >
+                        <Edit className="w-3 h-3 mr-1" />
+                        Ubah Template
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}
@@ -102,7 +137,7 @@ const OrderSummary = ({
         <CardContent className="pt-6">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
