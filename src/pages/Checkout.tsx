@@ -1,32 +1,16 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Package, CreditCard, Edit } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import CheckoutForm from "@/components/checkout/CheckoutForm";
+import OrderSummary from "@/components/checkout/OrderSummary";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -222,6 +206,21 @@ const Checkout = () => {
         catatan: ""
       });
 
+      // Set pricing and template from transaction data
+      if (data.pricing_package_id && pricingOptions.length > 0) {
+        const pricing = pricingOptions.find(p => p.id === data.pricing_package_id);
+        if (pricing) {
+          setSelectedPricing(pricing);
+        }
+      }
+
+      if (data.template_id && templates.length > 0) {
+        const template = templates.find(t => t.id === data.template_id);
+        if (template) {
+          setSelectedTemplate(template);
+        }
+      }
+
       toast({
         title: "Transaksi Ditemukan",
         description: "Data pembayaran sebelumnya telah dimuat. Anda dapat melanjutkan pembayaran.",
@@ -310,7 +309,12 @@ const Checkout = () => {
         customerPhone: formData.phone,
         itemId: selectedPricing?.id || 'package-1',
         itemName: `${selectedPricing?.paket || ''} ${selectedTemplate ? `(Include ${selectedTemplate.name})` : ''}`.trim(),
-        userId: user.id
+        userId: user.id,
+        // Add new fields for better data tracking
+        pricingPackageId: selectedPricing?.id,
+        pricingPackageName: selectedPricing?.paket,
+        templateId: selectedTemplate?.id,
+        templateName: selectedTemplate?.name
       };
 
       console.log('Processing checkout with order data:', orderData);
@@ -388,14 +392,6 @@ const Checkout = () => {
     }
   };
 
-  // Helper function to close drawer
-  const closeDrawer = () => {
-    const closeButton = document.querySelector('[data-vaul-drawer-close]') as HTMLElement;
-    if (closeButton) {
-      closeButton.click();
-    }
-  };
-
   // Show loading while checking auth or loading data
   if (authLoading || loadingData) {
     return (
@@ -469,92 +465,11 @@ const Checkout = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="w-5 h-5" />
-                    Informasi Pemesanan
-                  </CardTitle>
-                  <CardDescription>
-                    {pendingTransaction 
-                      ? "Data yang tersimpan dari transaksi sebelumnya"
-                      : "Isi data Anda dengan lengkap dan benar"
-                    }
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nama">Nama Lengkap *</Label>
-                    <Input
-                      id="nama"
-                      name="nama"
-                      type="text"
-                      placeholder="Masukkan nama lengkap"
-                      value={formData.nama}
-                      onChange={handleInputChange}
-                      required
-                      disabled={!!pendingTransaction}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="nama@email.com"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                      disabled={true}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">No. WhatsApp *</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      placeholder="08xxxxxxxxxx"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      required
-                      disabled={!!pendingTransaction}
-                    />
-                  </div>
-
-                  {!pendingTransaction && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="alamat">Alamat *</Label>
-                        <Textarea
-                          id="alamat"
-                          name="alamat"
-                          placeholder="Masukkan alamat lengkap"
-                          value={formData.alamat}
-                          onChange={handleInputChange}
-                          className="min-h-[80px]"
-                          required
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="catatan">Catatan Tambahan</Label>
-                        <Textarea
-                          id="catatan"
-                          name="catatan"
-                          placeholder="Catatan khusus untuk pesanan Anda (opsional)"
-                          value={formData.catatan}
-                          onChange={handleInputChange}
-                          className="min-h-[80px]"
-                        />
-                      </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
+              <CheckoutForm 
+                formData={formData}
+                onInputChange={handleInputChange}
+                isPendingTransaction={!!pendingTransaction}
+              />
             </motion.div>
 
             {/* Right Column - Order Summary */}
@@ -564,429 +479,15 @@ const Checkout = () => {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="space-y-6"
             >
-              {/* Selected Items */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="w-5 h-5" />
-                    Item Pesanan
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Selected Package */}
-                  {selectedPricing && (
-                    <div className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <h4 className="font-semibold text-lg text-gray-900">{selectedPricing.paket}</h4>
-                        {!pendingTransaction && (
-                          <Drawer>
-                            <DrawerTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                <Edit className="w-4 h-4 mr-1" />
-                                Ubah Paket
-                              </Button>
-                            </DrawerTrigger>
-                            <DrawerContent>
-                              <DrawerHeader>
-                                <DrawerTitle>Pilih Paket</DrawerTitle>
-                                <DrawerDescription>
-                                  Pilih paket yang sesuai dengan kebutuhan Anda
-                                </DrawerDescription>
-                              </DrawerHeader>
-                              <div className="px-4 pb-8">
-                                {/* Desktop Carousel */}
-                                <div className="hidden md:block">
-                                  <Carousel className="w-full max-w-5xl mx-auto">
-                                    <CarouselContent className="-ml-2 md:-ml-4">
-                                      {pricingOptions.map((pricing) => (
-                                        <CarouselItem key={pricing.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                                          <div
-                                            className={`border rounded-lg p-4 cursor-pointer transition-all h-full ${
-                                              selectedPricing?.id === pricing.id 
-                                                ? 'border-slate-900 bg-slate-50' 
-                                                : 'border-gray-200 hover:border-slate-300'
-                                            }`}
-                                            onClick={() => {
-                                              setSelectedPricing(pricing);
-                                              closeDrawer();
-                                            }}
-                                          >
-                                            <div className="flex justify-between items-start mb-2">
-                                              <h5 className="font-semibold">{pricing.paket}</h5>
-                                              <p className="font-bold text-lg">Rp {pricing.harga_paket.toLocaleString('id-ID')}</p>
-                                            </div>
-                                            <p className="text-sm text-gray-600 mb-3">{pricing.deskripsi_paket}</p>
-                                            <ul className="text-xs text-gray-600 space-y-1">
-                                              {pricing.PricingBenefit?.slice(0, 3).map((benefit, idx) => (
-                                                <li key={idx} className="flex items-center gap-2">
-                                                  <span className="text-green-500">✓</span>
-                                                  {benefit.benefit}
-                                                </li>
-                                              ))}
-                                            </ul>
-                                          </div>
-                                        </CarouselItem>
-                                      ))}
-                                    </CarouselContent>
-                                    <CarouselPrevious />
-                                    <CarouselNext />
-                                  </Carousel>
-                                </div>
-                                
-                                {/* Mobile Grid */}
-                                <div className="md:hidden max-h-96 overflow-y-auto">
-                                  <div className="grid grid-cols-1 gap-4">
-                                    {pricingOptions.map((pricing) => (
-                                      <div
-                                        key={pricing.id}
-                                        className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                                          selectedPricing?.id === pricing.id 
-                                            ? 'border-slate-900 bg-slate-50' 
-                                            : 'border-gray-200 hover:border-slate-300'
-                                        }`}
-                                        onClick={() => {
-                                          setSelectedPricing(pricing);
-                                          closeDrawer();
-                                        }}
-                                      >
-                                        <div className="flex justify-between items-start mb-2">
-                                          <h5 className="font-semibold">{pricing.paket}</h5>
-                                          <p className="font-bold text-lg">Rp {pricing.harga_paket.toLocaleString('id-ID')}</p>
-                                        </div>
-                                        <p className="text-sm text-gray-600 mb-3">{pricing.deskripsi_paket}</p>
-                                        <ul className="text-xs text-gray-600 space-y-1">
-                                          {pricing.PricingBenefit?.slice(0, 3).map((benefit, idx) => (
-                                            <li key={idx} className="flex items-center gap-2">
-                                              <span className="text-green-500">✓</span>
-                                              {benefit.benefit}
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            </DrawerContent>
-                          </Drawer>
-                        )}
-                      </div>
-                      
-                      {/* Template included in package */}
-                      {selectedTemplate && (
-                        <div className="ml-4 border-l-2 border-gray-200 pl-4 mt-3">
-                          <div className="flex items-center gap-3">
-                            <img 
-                              src={selectedTemplate.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
-                              alt={selectedTemplate.name}
-                              className="w-12 h-16 object-cover rounded"
-                            />
-                            <div className="flex-1">
-                              <p className="text-sm text-gray-600">Include Template:</p>
-                              <p className="font-medium text-gray-900">{selectedTemplate.name}</p>
-                              {!pendingTransaction && (
-                                <Drawer>
-                                  <DrawerTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="text-xs p-0 h-auto mt-1">
-                                      Ubah Template
-                                    </Button>
-                                  </DrawerTrigger>
-                                  <DrawerContent>
-                                    <DrawerHeader>
-                                      <DrawerTitle>Pilih Template</DrawerTitle>
-                                      <DrawerDescription>
-                                        Pilih template undangan yang Anda inginkan
-                                      </DrawerDescription>
-                                    </DrawerHeader>
-                                    <div className="px-4 pb-8">
-                                      {/* Desktop Carousel */}
-                                      <div className="hidden md:block">
-                                        <Carousel className="w-full max-w-5xl mx-auto">
-                                          <CarouselContent className="-ml-2 md:-ml-4">
-                                            {templates.map((template) => (
-                                              <CarouselItem key={template.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/4">
-                                                <div
-                                                  className={`border rounded-lg p-3 cursor-pointer transition-all ${
-                                                    selectedTemplate?.id === template.id 
-                                                      ? 'border-slate-900 bg-slate-50' 
-                                                      : 'border-gray-200 hover:border-slate-300'
-                                                  }`}
-                                                  onClick={() => {
-                                                    setSelectedTemplate(template);
-                                                    closeDrawer();
-                                                  }}
-                                                >
-                                                  <img 
-                                                    src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
-                                                    alt={template.name}
-                                                    className="w-full h-48 object-cover rounded mb-2"
-                                                  />
-                                                  <h5 className="font-medium text-sm">{template.name}</h5>
-                                                </div>
-                                              </CarouselItem>
-                                            ))}
-                                          </CarouselContent>
-                                          <CarouselPrevious />
-                                          <CarouselNext />
-                                        </Carousel>
-                                      </div>
-                                      
-                                      {/* Mobile Grid */}
-                                      <div className="md:hidden max-h-96 overflow-y-auto">
-                                        <div className="grid grid-cols-2 gap-4">
-                                          {templates.map((template) => (
-                                            <div
-                                              key={template.id}
-                                              className={`border rounded-lg p-3 cursor-pointer transition-all ${
-                                                selectedTemplate?.id === template.id 
-                                                  ? 'border-slate-900 bg-slate-50' 
-                                                  : 'border-gray-200 hover:border-slate-300'
-                                              }`}
-                                              onClick={() => {
-                                                setSelectedTemplate(template);
-                                                closeDrawer();
-                                              }}
-                                            >
-                                              <img 
-                                                src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
-                                                alt={template.name}
-                                                className="w-full h-32 object-cover rounded mb-2"
-                                              />
-                                              <h5 className="font-medium text-sm">{template.name}</h5>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </DrawerContent>
-                                </Drawer>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Add template if none selected */}
-                      {!selectedTemplate && !pendingTransaction && (
-                        <div className="ml-4 border-l-2 border-gray-200 pl-4 mt-3">
-                          <Drawer>
-                            <DrawerTrigger asChild>
-                              <Button variant="outline" size="sm" className="w-full">
-                                <Package className="w-4 h-4 mr-2" />
-                                Pilih Template
-                              </Button>
-                            </DrawerTrigger>
-                            <DrawerContent>
-                              <DrawerHeader>
-                                <DrawerTitle>Pilih Template</DrawerTitle>
-                                <DrawerDescription>
-                                  Pilih template undangan yang Anda inginkan
-                                </DrawerDescription>
-                              </DrawerHeader>
-                              <div className="px-4 pb-8">
-                                {/* Desktop Carousel */}
-                                <div className="hidden md:block">
-                                  <Carousel className="w-full max-w-5xl mx-auto">
-                                    <CarouselContent className="-ml-2 md:-ml-4">
-                                      {templates.map((template) => (
-                                        <CarouselItem key={template.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/4">
-                                          <div
-                                            className="border rounded-lg p-3 cursor-pointer hover:border-slate-300 transition-all"
-                                            onClick={() => {
-                                              setSelectedTemplate(template);
-                                              closeDrawer();
-                                            }}
-                                          >
-                                            <img 
-                                              src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
-                                              alt={template.name}
-                                              className="w-full h-48 object-cover rounded mb-2"
-                                            />
-                                            <h5 className="font-medium text-sm">{template.name}</h5>
-                                          </div>
-                                        </CarouselItem>
-                                      ))}
-                                    </CarouselContent>
-                                    <CarouselPrevious />
-                                    <CarouselNext />
-                                  </Carousel>
-                                </div>
-                                
-                                {/* Mobile Grid */}
-                                <div className="md:hidden max-h-96 overflow-y-auto">
-                                  <div className="grid grid-cols-2 gap-4">
-                                    {templates.map((template) => (
-                                      <div
-                                        key={template.id}
-                                        className="border rounded-lg p-3 cursor-pointer hover:border-slate-300 transition-all"
-                                        onClick={() => {
-                                          setSelectedTemplate(template);
-                                          closeDrawer();
-                                        }}
-                                      >
-                                        <img 
-                                          src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
-                                          alt={template.name}
-                                          className="w-full h-32 object-cover rounded mb-2"
-                                        />
-                                        <h5 className="font-medium text-sm">{template.name}</h5>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            </DrawerContent>
-                          </Drawer>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Add package if none selected */}
-                  {!selectedPricing && !pendingTransaction && (
-                    <Drawer>
-                      <DrawerTrigger asChild>
-                        <Button variant="outline" className="w-full">
-                          <Package className="w-4 h-4 mr-2" />
-                          Pilih Paket
-                        </Button>
-                      </DrawerTrigger>
-                      <DrawerContent>
-                        <DrawerHeader>
-                          <DrawerTitle>Pilih Paket</DrawerTitle>
-                          <DrawerDescription>
-                            Pilih paket yang sesuai dengan kebutuhan Anda
-                          </DrawerDescription>
-                        </DrawerHeader>
-                        <div className="px-4 pb-8">
-                          {/* Desktop Carousel */}
-                          <div className="hidden md:block">
-                            <Carousel className="w-full max-w-5xl mx-auto">
-                              <CarouselContent className="-ml-2 md:-ml-4">
-                                {pricingOptions.map((pricing) => (
-                                  <CarouselItem key={pricing.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                                    <div
-                                      className="border rounded-lg p-4 cursor-pointer hover:border-slate-300 transition-all h-full"
-                                      onClick={() => {
-                                        setSelectedPricing(pricing);
-                                        closeDrawer();
-                                      }}
-                                    >
-                                      <div className="flex justify-between items-start mb-2">
-                                        <h5 className="font-semibold">{pricing.paket}</h5>
-                                        <p className="font-bold text-lg">Rp {pricing.harga_paket.toLocaleString('id-ID')}</p>
-                                      </div>
-                                      <p className="text-sm text-gray-600 mb-3">{pricing.deskripsi_paket}</p>
-                                      <ul className="text-xs text-gray-600 space-y-1">
-                                        {pricing.PricingBenefit?.slice(0, 3).map((benefit, idx) => (
-                                          <li key={idx} className="flex items-center gap-2">
-                                            <span className="text-green-500">✓</span>
-                                            {benefit.benefit}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  </CarouselItem>
-                                ))}
-                              </CarouselContent>
-                              <CarouselPrevious />
-                              <CarouselNext />
-                            </Carousel>
-                          </div>
-                          
-                          {/* Mobile Grid */}
-                          <div className="md:hidden max-h-96 overflow-y-auto">
-                            <div className="grid grid-cols-1 gap-4">
-                              {pricingOptions.map((pricing) => (
-                                <div
-                                  key={pricing.id}
-                                  className="border rounded-lg p-4 cursor-pointer hover:border-slate-300 transition-all"
-                                  onClick={() => {
-                                    setSelectedPricing(pricing);
-                                    closeDrawer();
-                                  }}
-                                >
-                                  <div className="flex justify-between items-start mb-2">
-                                    <h5 className="font-semibold">{pricing.paket}</h5>
-                                    <p className="font-bold text-lg">Rp {pricing.harga_paket.toLocaleString('id-ID')}</p>
-                                  </div>
-                                  <p className="text-sm text-gray-600 mb-3">{pricing.deskripsi_paket}</p>
-                                  <ul className="text-xs text-gray-600 space-y-1">
-                                    {pricing.PricingBenefit?.slice(0, 3).map((benefit, idx) => (
-                                      <li key={idx} className="flex items-center gap-2">
-                                        <span className="text-green-500">✓</span>
-                                        {benefit.benefit}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </DrawerContent>
-                    </Drawer>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Total Summary */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Ringkasan Pembayaran</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {selectedPricing && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">{selectedPricing.paket}</span>
-                      <span>Rp {selectedPricing.harga_paket.toLocaleString('id-ID')}</span>
-                    </div>
-                  )}
-                  
-                  <hr />
-                  <div className="flex justify-between font-semibold text-lg">
-                    <span>Total</span>
-                    <span className="text-slate-900">
-                      Rp {getTotalPrice().toLocaleString('id-ID')}
-                    </span>
-                  </div>
-
-                  <Button 
-                    onClick={handleCheckout}
-                    className="w-full mt-6 bg-slate-900 hover:bg-slate-800"
-                    size="lg"
-                    disabled={isProcessing || !isSnapLoaded || getTotalPrice() === 0}
-                  >
-                    {isProcessing ? "Memproses..." : !isSnapLoaded ? "Memuat..." : 
-                     pendingTransaction ? "Lanjutkan Pembayaran" : "Bayar Sekarang"}
-                  </Button>
-
-                  <p className="text-xs text-gray-500 text-center mt-3">
-                    Dengan melanjutkan, Anda menyetujui syarat dan ketentuan kami
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Security Info */}
-              <Card className="border-green-200 bg-green-50">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-green-800">
-                        Pembayaran Aman
-                      </p>
-                      <p className="text-xs text-green-600">
-                        Transaksi Anda dilindungi dengan enkripsi SSL
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <OrderSummary 
+                selectedPricing={selectedPricing}
+                selectedTemplate={selectedTemplate}
+                pendingTransaction={pendingTransaction}
+                getTotalPrice={getTotalPrice}
+                onCheckout={handleCheckout}
+                isProcessing={isProcessing}
+                isSnapLoaded={isSnapLoaded}
+              />
             </motion.div>
           </div>
         </motion.div>
