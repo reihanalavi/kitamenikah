@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -383,6 +382,14 @@ const Checkout = () => {
     }
   };
 
+  // Helper function to close drawer
+  const closeDrawer = () => {
+    const closeButton = document.querySelector('[data-vaul-drawer-close]') as HTMLElement;
+    if (closeButton) {
+      closeButton.click();
+    }
+  };
+
   // Show loading while checking auth or loading data
   if (authLoading || loadingData) {
     return (
@@ -592,7 +599,7 @@ const Checkout = () => {
                                       }`}
                                       onClick={() => {
                                         setSelectedTemplate(template);
-                                        document.querySelector('[data-state="open"]')?.click();
+                                        closeDrawer();
                                       }}
                                     >
                                       <img 
@@ -647,7 +654,7 @@ const Checkout = () => {
                                       }`}
                                       onClick={() => {
                                         setSelectedPricing(pricing);
-                                        document.querySelector('[data-state="open"]')?.click();
+                                        closeDrawer();
                                       }}
                                     >
                                       <div className="flex justify-between items-start mb-2">
@@ -700,7 +707,7 @@ const Checkout = () => {
                                 className="border rounded-lg p-3 cursor-pointer hover:border-slate-300 transition-all"
                                 onClick={() => {
                                   setSelectedTemplate(template);
-                                  document.querySelector('[data-state="open"]')?.click();
+                                  closeDrawer();
                                 }}
                               >
                                 <img 
@@ -741,7 +748,7 @@ const Checkout = () => {
                                 className="border rounded-lg p-4 cursor-pointer hover:border-slate-300 transition-all"
                                 onClick={() => {
                                   setSelectedPricing(pricing);
-                                  document.querySelector('[data-state="open"]')?.click();
+                                  closeDrawer();
                                 }}
                               >
                                 <div className="flex justify-between items-start mb-2">
