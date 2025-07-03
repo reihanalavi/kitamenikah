@@ -222,6 +222,36 @@ const Checkout = () => {
         catatan: ""
       });
 
+      // Load pricing package and template based on stored IDs
+      if (data.pricing_package_id) {
+        const { data: pricingData, error: pricingError } = await supabase
+          .from('Pricing')
+          .select(`
+            *,
+            PricingBenefit (
+              benefit
+            )
+          `)
+          .eq('id', data.pricing_package_id)
+          .single();
+
+        if (!pricingError && pricingData) {
+          setSelectedPricing(pricingData);
+        }
+      }
+
+      if (data.template_id) {
+        const { data: templateData, error: templateError } = await supabase
+          .from('Template')
+          .select('*')
+          .eq('id', data.template_id)
+          .single();
+
+        if (!templateError && templateData) {
+          setSelectedTemplate(templateData);
+        }
+      }
+
       toast({
         title: "Transaksi Ditemukan",
         description: "Data pembayaran sebelumnya telah dimuat. Anda dapat melanjutkan pembayaran.",
@@ -310,7 +340,9 @@ const Checkout = () => {
         customerPhone: formData.phone,
         itemId: selectedPricing?.id || 'package-1',
         itemName: `${selectedPricing?.paket || ''} ${selectedTemplate ? `(Include ${selectedTemplate.name})` : ''}`.trim(),
-        userId: user.id
+        userId: user.id,
+        pricingPackageId: selectedPricing?.id,
+        templateId: selectedTemplate?.id || null
       };
 
       console.log('Processing checkout with order data:', orderData);
