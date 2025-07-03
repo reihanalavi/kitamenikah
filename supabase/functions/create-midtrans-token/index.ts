@@ -57,7 +57,18 @@ serve(async (req) => {
     }
 
     // Create new transaction
-    const serverKey = 'SB-Mid-server-z0c-vp_RqRhCTImkjcEwPioM';
+    const serverKey = Deno.env.get('MIDTRANS_SERVER_KEY');
+    if (!serverKey) {
+      console.error('MIDTRANS_SERVER_KEY environment variable is not set');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
     const encodedServerKey = btoa(serverKey + ':');
 
     const parameter = {
@@ -107,7 +118,7 @@ serve(async (req) => {
       );
     }
 
-    // Save transaction to database with user_id
+    // Save transaction to database with pricing_package_id and template_id
     const { error: insertError } = await supabase
       .from('midtrans_transactions')
       .insert({
@@ -120,14 +131,16 @@ serve(async (req) => {
         customer_phone: orderData.customerPhone,
         item_name: orderData.itemName,
         status: 'pending',
-        user_id: orderData.userId  // Add user_id from orderData
+        user_id: orderData.userId,
+        pricing_package_id: orderData.pricingPackageId || null,
+        template_id: orderData.templateId || null
       });
 
     if (insertError) {
       console.error('Error saving transaction to database:', insertError);
       // Still return the token even if DB save fails
     } else {
-      console.log('Transaction saved to database successfully with user_id:', orderData.userId);
+      console.log('Transaction saved to database successfully with pricing_package_id:', orderData.pricingPackageId, 'and template_id:', orderData.templateId);
     }
 
     return new Response(
