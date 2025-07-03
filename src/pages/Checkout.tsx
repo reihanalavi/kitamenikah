@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -392,6 +391,14 @@ const Checkout = () => {
     }
   };
 
+  const handlePricingChange = (pricing: any) => {
+    setSelectedPricing(pricing);
+  };
+
+  const handleTemplateChange = (template: any) => {
+    setSelectedTemplate(template);
+  };
+
   // Show loading while checking auth or loading data
   if (authLoading || loadingData) {
     return (
@@ -487,6 +494,10 @@ const Checkout = () => {
                 onCheckout={handleCheckout}
                 isProcessing={isProcessing}
                 isSnapLoaded={isSnapLoaded}
+                onPricingChange={handlePricingChange}
+                onTemplateChange={handleTemplateChange}
+                pricingOptions={pricingOptions}
+                templates={templates}
               />
             </motion.div>
           </div>

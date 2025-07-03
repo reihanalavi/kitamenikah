@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import PackageSelectionSheet from "./PackageSelectionSheet";
+import TemplateSelectionSheet from "./TemplateSelectionSheet";
 
 interface OrderSummaryProps {
   selectedPricing: any;
@@ -12,6 +15,10 @@ interface OrderSummaryProps {
   onCheckout: () => void;
   isProcessing: boolean;
   isSnapLoaded: boolean;
+  onPricingChange?: (pricing: any) => void;
+  onTemplateChange?: (template: any) => void;
+  pricingOptions?: any[];
+  templates?: any[];
 }
 
 const OrderSummary = ({ 
@@ -21,16 +28,32 @@ const OrderSummary = ({
   getTotalPrice, 
   onCheckout, 
   isProcessing, 
-  isSnapLoaded 
+  isSnapLoaded,
+  onPricingChange,
+  onTemplateChange,
+  pricingOptions = [],
+  templates = []
 }: OrderSummaryProps) => {
   const navigate = useNavigate();
+  const [showPackageSheet, setShowPackageSheet] = useState(false);
+  const [showTemplateSheet, setShowTemplateSheet] = useState(false);
 
   const handleChangePackage = () => {
-    navigate('/#pricing');
+    setShowPackageSheet(true);
   };
 
   const handleChangeTemplate = () => {
-    navigate('/templates');
+    setShowTemplateSheet(true);
+  };
+
+  const handlePricingSelect = (pricing: any) => {
+    onPricingChange?.(pricing);
+    setShowPackageSheet(false);
+  };
+
+  const handleTemplateSelect = (template: any) => {
+    onTemplateChange?.(template);
+    setShowTemplateSheet(false);
   };
 
   return (
@@ -152,6 +175,24 @@ const OrderSummary = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Package Selection Sheet */}
+      <PackageSelectionSheet
+        isOpen={showPackageSheet}
+        onClose={() => setShowPackageSheet(false)}
+        pricingOptions={pricingOptions}
+        selectedPricing={selectedPricing}
+        onPricingSelect={handlePricingSelect}
+      />
+
+      {/* Template Selection Sheet */}
+      <TemplateSelectionSheet
+        isOpen={showTemplateSheet}
+        onClose={() => setShowTemplateSheet(false)}
+        templates={templates}
+        selectedTemplate={selectedTemplate}
+        onTemplateSelect={handleTemplateSelect}
+      />
     </>
   );
 };
