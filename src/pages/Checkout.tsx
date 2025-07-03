@@ -20,6 +20,13 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -51,7 +58,6 @@ const Checkout = () => {
   const [pricingOptions, setPricingOptions] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
-  // Check authentication first
   useEffect(() => {
     checkAuth();
   }, []);
@@ -85,7 +91,6 @@ const Checkout = () => {
     }
   };
 
-  // Load templates and pricing data
   useEffect(() => {
     if (!user) return;
     loadInitialData();
@@ -119,9 +124,14 @@ const Checkout = () => {
       setPricingOptions(pricingData || []);
 
       // Set initial selections based on URL params
-      if (templateId && templatesData) {
+      if (templateId && templatesData && pricingData) {
         const template = templatesData.find(t => t.id === templateId);
-        if (template) setSelectedTemplate(template);
+        if (template) {
+          setSelectedTemplate(template);
+          // Set to Basic package when template is selected
+          const basicPackage = pricingData.find(p => p.paket.toLowerCase().includes('basic')) || pricingData[0];
+          setSelectedPricing(basicPackage);
+        }
       }
 
       if (pricingId && pricingData) {
@@ -129,8 +139,8 @@ const Checkout = () => {
         if (pricing) {
           setSelectedPricing(pricing);
         }
-      } else if (pricingData && pricingData.length > 0) {
-        // Set default to lowest price package
+      } else if (pricingData && pricingData.length > 0 && !templateId) {
+        // Set default to lowest price package only if no template is selected
         const lowestPricing = pricingData.reduce((prev, current) => 
           prev.harga_paket < current.harga_paket ? prev : current
         );
@@ -149,7 +159,6 @@ const Checkout = () => {
     }
   };
 
-  // Load Midtrans Snap script
   useEffect(() => {
     if (!user) return;
 
@@ -179,7 +188,6 @@ const Checkout = () => {
     };
   }, [user, toast]);
 
-  // Check for pending transaction if resuming
   useEffect(() => {
     if (resumeOrderId && isSnapLoaded && user) {
       checkPendingTransaction();
@@ -236,10 +244,8 @@ const Checkout = () => {
   };
 
   const getTotalPrice = () => {
-    let total = 0;
-    if (selectedTemplate) total += selectedTemplate.price;
-    if (selectedPricing) total += selectedPricing.harga_paket;
-    return total;
+    // Only use pricing package price, template is included
+    return selectedPricing ? selectedPricing.harga_paket : 0;
   };
 
   const handleCheckout = async () => {
@@ -270,11 +276,11 @@ const Checkout = () => {
       return;
     }
 
-    // Check if items are selected
-    if (!selectedTemplate && !selectedPricing) {
+    // Check if pricing is selected
+    if (!selectedPricing) {
       toast({
         title: "Pilihan Tidak Lengkap",
-        description: "Mohon pilih template atau paket terlebih dahulu",
+        description: "Mohon pilih paket terlebih dahulu",
         variant: "destructive"
       });
       return;
@@ -302,8 +308,8 @@ const Checkout = () => {
         customerName: formData.nama,
         customerEmail: formData.email,
         customerPhone: formData.phone,
-        itemId: selectedTemplate?.id || selectedPricing?.id || 'package-1',
-        itemName: `${selectedTemplate?.name || ''} ${selectedPricing?.paket || ''}`.trim(),
+        itemId: selectedPricing?.id || 'package-1',
+        itemName: `${selectedPricing?.paket || ''} ${selectedTemplate ? `(Include ${selectedTemplate.name})` : ''}`.trim(),
         userId: user.id
       };
 
@@ -567,66 +573,11 @@ const Checkout = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Selected Template */}
-                  {selectedTemplate && (
-                    <div className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium text-gray-900">Template</h4>
-                        {!pendingTransaction && (
-                          <Drawer>
-                            <DrawerTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                <Edit className="w-4 h-4 mr-1" />
-                                Ubah Template
-                              </Button>
-                            </DrawerTrigger>
-                            <DrawerContent>
-                              <DrawerHeader>
-                                <DrawerTitle>Pilih Template</DrawerTitle>
-                                <DrawerDescription>
-                                  Pilih template undangan yang Anda inginkan
-                                </DrawerDescription>
-                              </DrawerHeader>
-                              <div className="px-4 pb-8 max-h-96 overflow-y-auto">
-                                <div className="grid grid-cols-2 gap-4">
-                                  {templates.map((template) => (
-                                    <div
-                                      key={template.id}
-                                      className={`border rounded-lg p-3 cursor-pointer transition-all ${
-                                        selectedTemplate?.id === template.id 
-                                          ? 'border-slate-900 bg-slate-50' 
-                                          : 'border-gray-200 hover:border-slate-300'
-                                      }`}
-                                      onClick={() => {
-                                        setSelectedTemplate(template);
-                                        closeDrawer();
-                                      }}
-                                    >
-                                      <img 
-                                        src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
-                                        alt={template.name}
-                                        className="w-full h-32 object-cover rounded mb-2"
-                                      />
-                                      <h5 className="font-medium text-sm">{template.name}</h5>
-                                      <p className="text-slate-600 text-sm">Rp {template.price.toLocaleString('id-ID')}</p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </DrawerContent>
-                          </Drawer>
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-600 mb-1">{selectedTemplate.name}</p>
-                      <p className="font-medium text-gray-900">Rp {selectedTemplate.price.toLocaleString('id-ID')}</p>
-                    </div>
-                  )}
-
-                  {/* Selected Pricing */}
+                  {/* Selected Package */}
                   {selectedPricing && (
                     <div className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-medium text-gray-900">Paket</h4>
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-semibold text-lg text-gray-900">{selectedPricing.paket}</h4>
                         {!pendingTransaction && (
                           <Drawer>
                             <DrawerTrigger asChild>
@@ -642,16 +593,280 @@ const Checkout = () => {
                                   Pilih paket yang sesuai dengan kebutuhan Anda
                                 </DrawerDescription>
                               </DrawerHeader>
-                              <div className="px-4 pb-8 max-h-96 overflow-y-auto">
-                                <div className="space-y-4">
-                                  {pricingOptions.map((pricing) => (
+                              <div className="px-4 pb-8">
+                                {/* Desktop Carousel */}
+                                <div className="hidden md:block">
+                                  <Carousel className="w-full max-w-5xl mx-auto">
+                                    <CarouselContent className="-ml-2 md:-ml-4">
+                                      {pricingOptions.map((pricing) => (
+                                        <CarouselItem key={pricing.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                                          <div
+                                            className={`border rounded-lg p-4 cursor-pointer transition-all h-full ${
+                                              selectedPricing?.id === pricing.id 
+                                                ? 'border-slate-900 bg-slate-50' 
+                                                : 'border-gray-200 hover:border-slate-300'
+                                            }`}
+                                            onClick={() => {
+                                              setSelectedPricing(pricing);
+                                              closeDrawer();
+                                            }}
+                                          >
+                                            <div className="flex justify-between items-start mb-2">
+                                              <h5 className="font-semibold">{pricing.paket}</h5>
+                                              <p className="font-bold text-lg">Rp {pricing.harga_paket.toLocaleString('id-ID')}</p>
+                                            </div>
+                                            <p className="text-sm text-gray-600 mb-3">{pricing.deskripsi_paket}</p>
+                                            <ul className="text-xs text-gray-600 space-y-1">
+                                              {pricing.PricingBenefit?.slice(0, 3).map((benefit, idx) => (
+                                                <li key={idx} className="flex items-center gap-2">
+                                                  <span className="text-green-500">✓</span>
+                                                  {benefit.benefit}
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        </CarouselItem>
+                                      ))}
+                                    </CarouselContent>
+                                    <CarouselPrevious />
+                                    <CarouselNext />
+                                  </Carousel>
+                                </div>
+                                
+                                {/* Mobile Grid */}
+                                <div className="md:hidden max-h-96 overflow-y-auto">
+                                  <div className="grid grid-cols-1 gap-4">
+                                    {pricingOptions.map((pricing) => (
+                                      <div
+                                        key={pricing.id}
+                                        className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                                          selectedPricing?.id === pricing.id 
+                                            ? 'border-slate-900 bg-slate-50' 
+                                            : 'border-gray-200 hover:border-slate-300'
+                                        }`}
+                                        onClick={() => {
+                                          setSelectedPricing(pricing);
+                                          closeDrawer();
+                                        }}
+                                      >
+                                        <div className="flex justify-between items-start mb-2">
+                                          <h5 className="font-semibold">{pricing.paket}</h5>
+                                          <p className="font-bold text-lg">Rp {pricing.harga_paket.toLocaleString('id-ID')}</p>
+                                        </div>
+                                        <p className="text-sm text-gray-600 mb-3">{pricing.deskripsi_paket}</p>
+                                        <ul className="text-xs text-gray-600 space-y-1">
+                                          {pricing.PricingBenefit?.slice(0, 3).map((benefit, idx) => (
+                                            <li key={idx} className="flex items-center gap-2">
+                                              <span className="text-green-500">✓</span>
+                                              {benefit.benefit}
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </DrawerContent>
+                          </Drawer>
+                        )}
+                      </div>
+                      
+                      {/* Template included in package */}
+                      {selectedTemplate && (
+                        <div className="ml-4 border-l-2 border-gray-200 pl-4 mt-3">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={selectedTemplate.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
+                              alt={selectedTemplate.name}
+                              className="w-12 h-16 object-cover rounded"
+                            />
+                            <div className="flex-1">
+                              <p className="text-sm text-gray-600">Include Template:</p>
+                              <p className="font-medium text-gray-900">{selectedTemplate.name}</p>
+                              {!pendingTransaction && (
+                                <Drawer>
+                                  <DrawerTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="text-xs p-0 h-auto mt-1">
+                                      Ubah Template
+                                    </Button>
+                                  </DrawerTrigger>
+                                  <DrawerContent>
+                                    <DrawerHeader>
+                                      <DrawerTitle>Pilih Template</DrawerTitle>
+                                      <DrawerDescription>
+                                        Pilih template undangan yang Anda inginkan
+                                      </DrawerDescription>
+                                    </DrawerHeader>
+                                    <div className="px-4 pb-8">
+                                      {/* Desktop Carousel */}
+                                      <div className="hidden md:block">
+                                        <Carousel className="w-full max-w-5xl mx-auto">
+                                          <CarouselContent className="-ml-2 md:-ml-4">
+                                            {templates.map((template) => (
+                                              <CarouselItem key={template.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/4">
+                                                <div
+                                                  className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                                                    selectedTemplate?.id === template.id 
+                                                      ? 'border-slate-900 bg-slate-50' 
+                                                      : 'border-gray-200 hover:border-slate-300'
+                                                  }`}
+                                                  onClick={() => {
+                                                    setSelectedTemplate(template);
+                                                    closeDrawer();
+                                                  }}
+                                                >
+                                                  <img 
+                                                    src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
+                                                    alt={template.name}
+                                                    className="w-full h-48 object-cover rounded mb-2"
+                                                  />
+                                                  <h5 className="font-medium text-sm">{template.name}</h5>
+                                                </div>
+                                              </CarouselItem>
+                                            ))}
+                                          </CarouselContent>
+                                          <CarouselPrevious />
+                                          <CarouselNext />
+                                        </Carousel>
+                                      </div>
+                                      
+                                      {/* Mobile Grid */}
+                                      <div className="md:hidden max-h-96 overflow-y-auto">
+                                        <div className="grid grid-cols-2 gap-4">
+                                          {templates.map((template) => (
+                                            <div
+                                              key={template.id}
+                                              className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                                                selectedTemplate?.id === template.id 
+                                                  ? 'border-slate-900 bg-slate-50' 
+                                                  : 'border-gray-200 hover:border-slate-300'
+                                              }`}
+                                              onClick={() => {
+                                                setSelectedTemplate(template);
+                                                closeDrawer();
+                                              }}
+                                            >
+                                              <img 
+                                                src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
+                                                alt={template.name}
+                                                className="w-full h-32 object-cover rounded mb-2"
+                                              />
+                                              <h5 className="font-medium text-sm">{template.name}</h5>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </DrawerContent>
+                                </Drawer>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Add template if none selected */}
+                      {!selectedTemplate && !pendingTransaction && (
+                        <div className="ml-4 border-l-2 border-gray-200 pl-4 mt-3">
+                          <Drawer>
+                            <DrawerTrigger asChild>
+                              <Button variant="outline" size="sm" className="w-full">
+                                <Package className="w-4 h-4 mr-2" />
+                                Pilih Template
+                              </Button>
+                            </DrawerTrigger>
+                            <DrawerContent>
+                              <DrawerHeader>
+                                <DrawerTitle>Pilih Template</DrawerTitle>
+                                <DrawerDescription>
+                                  Pilih template undangan yang Anda inginkan
+                                </DrawerDescription>
+                              </DrawerHeader>
+                              <div className="px-4 pb-8">
+                                {/* Desktop Carousel */}
+                                <div className="hidden md:block">
+                                  <Carousel className="w-full max-w-5xl mx-auto">
+                                    <CarouselContent className="-ml-2 md:-ml-4">
+                                      {templates.map((template) => (
+                                        <CarouselItem key={template.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/4">
+                                          <div
+                                            className="border rounded-lg p-3 cursor-pointer hover:border-slate-300 transition-all"
+                                            onClick={() => {
+                                              setSelectedTemplate(template);
+                                              closeDrawer();
+                                            }}
+                                          >
+                                            <img 
+                                              src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
+                                              alt={template.name}
+                                              className="w-full h-48 object-cover rounded mb-2"
+                                            />
+                                            <h5 className="font-medium text-sm">{template.name}</h5>
+                                          </div>
+                                        </CarouselItem>
+                                      ))}
+                                    </CarouselContent>
+                                    <CarouselPrevious />
+                                    <CarouselNext />
+                                  </Carousel>
+                                </div>
+                                
+                                {/* Mobile Grid */}
+                                <div className="md:hidden max-h-96 overflow-y-auto">
+                                  <div className="grid grid-cols-2 gap-4">
+                                    {templates.map((template) => (
+                                      <div
+                                        key={template.id}
+                                        className="border rounded-lg p-3 cursor-pointer hover:border-slate-300 transition-all"
+                                        onClick={() => {
+                                          setSelectedTemplate(template);
+                                          closeDrawer();
+                                        }}
+                                      >
+                                        <img 
+                                          src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
+                                          alt={template.name}
+                                          className="w-full h-32 object-cover rounded mb-2"
+                                        />
+                                        <h5 className="font-medium text-sm">{template.name}</h5>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </DrawerContent>
+                          </Drawer>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Add package if none selected */}
+                  {!selectedPricing && !pendingTransaction && (
+                    <Drawer>
+                      <DrawerTrigger asChild>
+                        <Button variant="outline" className="w-full">
+                          <Package className="w-4 h-4 mr-2" />
+                          Pilih Paket
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent>
+                        <DrawerHeader>
+                          <DrawerTitle>Pilih Paket</DrawerTitle>
+                          <DrawerDescription>
+                            Pilih paket yang sesuai dengan kebutuhan Anda
+                          </DrawerDescription>
+                        </DrawerHeader>
+                        <div className="px-4 pb-8">
+                          {/* Desktop Carousel */}
+                          <div className="hidden md:block">
+                            <Carousel className="w-full max-w-5xl mx-auto">
+                              <CarouselContent className="-ml-2 md:-ml-4">
+                                {pricingOptions.map((pricing) => (
+                                  <CarouselItem key={pricing.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
                                     <div
-                                      key={pricing.id}
-                                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                                        selectedPricing?.id === pricing.id 
-                                          ? 'border-slate-900 bg-slate-50' 
-                                          : 'border-gray-200 hover:border-slate-300'
-                                      }`}
+                                      className="border rounded-lg p-4 cursor-pointer hover:border-slate-300 transition-all h-full"
                                       onClick={() => {
                                         setSelectedPricing(pricing);
                                         closeDrawer();
@@ -671,101 +886,42 @@ const Checkout = () => {
                                         ))}
                                       </ul>
                                     </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </DrawerContent>
-                          </Drawer>
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-600 mb-1">{selectedPricing.paket}</p>
-                      <p className="font-medium text-gray-900">Rp {selectedPricing.harga_paket.toLocaleString('id-ID')}</p>
-                    </div>
-                  )}
-
-                  {/* Add items buttons for empty states */}
-                  {!selectedTemplate && !pendingTransaction && (
-                    <Drawer>
-                      <DrawerTrigger asChild>
-                        <Button variant="outline" className="w-full">
-                          <Package className="w-4 h-4 mr-2" />
-                          Pilih Template
-                        </Button>
-                      </DrawerTrigger>
-                      <DrawerContent>
-                        <DrawerHeader>
-                          <DrawerTitle>Pilih Template</DrawerTitle>
-                          <DrawerDescription>
-                            Pilih template undangan yang Anda inginkan
-                          </DrawerDescription>
-                        </DrawerHeader>
-                        <div className="px-4 pb-8 max-h-96 overflow-y-auto">
-                          <div className="grid grid-cols-2 gap-4">
-                            {templates.map((template) => (
-                              <div
-                                key={template.id}
-                                className="border rounded-lg p-3 cursor-pointer hover:border-slate-300 transition-all"
-                                onClick={() => {
-                                  setSelectedTemplate(template);
-                                  closeDrawer();
-                                }}
-                              >
-                                <img 
-                                  src={template.photo_url || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=400&fit=crop"} 
-                                  alt={template.name}
-                                  className="w-full h-32 object-cover rounded mb-2"
-                                />
-                                <h5 className="font-medium text-sm">{template.name}</h5>
-                                <p className="text-slate-600 text-sm">Rp {template.price.toLocaleString('id-ID')}</p>
-                              </div>
-                            ))}
+                                  </CarouselItem>
+                                ))}
+                              </CarouselContent>
+                              <CarouselPrevious />
+                              <CarouselNext />
+                            </Carousel>
                           </div>
-                        </div>
-                      </DrawerContent>
-                    </Drawer>
-                  )}
-
-                  {!selectedPricing && !pendingTransaction && (
-                    <Drawer>
-                      <DrawerTrigger asChild>
-                        <Button variant="outline" className="w-full">
-                          <Package className="w-4 h-4 mr-2" />
-                          Pilih Paket
-                        </Button>
-                      </DrawerTrigger>
-                      <DrawerContent>
-                        <DrawerHeader>
-                          <DrawerTitle>Pilih Paket</DrawerTitle>
-                          <DrawerDescription>
-                            Pilih paket yang sesuai dengan kebutuhan Anda
-                          </DrawerDescription>
-                        </DrawerHeader>
-                        <div className="px-4 pb-8 max-h-96 overflow-y-auto">
-                          <div className="space-y-4">
-                            {pricingOptions.map((pricing) => (
-                              <div
-                                key={pricing.id}
-                                className="border rounded-lg p-4 cursor-pointer hover:border-slate-300 transition-all"
-                                onClick={() => {
-                                  setSelectedPricing(pricing);
-                                  closeDrawer();
-                                }}
-                              >
-                                <div className="flex justify-between items-start mb-2">
-                                  <h5 className="font-semibold">{pricing.paket}</h5>
-                                  <p className="font-bold text-lg">Rp {pricing.harga_paket.toLocaleString('id-ID')}</p>
+                          
+                          {/* Mobile Grid */}
+                          <div className="md:hidden max-h-96 overflow-y-auto">
+                            <div className="grid grid-cols-1 gap-4">
+                              {pricingOptions.map((pricing) => (
+                                <div
+                                  key={pricing.id}
+                                  className="border rounded-lg p-4 cursor-pointer hover:border-slate-300 transition-all"
+                                  onClick={() => {
+                                    setSelectedPricing(pricing);
+                                    closeDrawer();
+                                  }}
+                                >
+                                  <div className="flex justify-between items-start mb-2">
+                                    <h5 className="font-semibold">{pricing.paket}</h5>
+                                    <p className="font-bold text-lg">Rp {pricing.harga_paket.toLocaleString('id-ID')}</p>
+                                  </div>
+                                  <p className="text-sm text-gray-600 mb-3">{pricing.deskripsi_paket}</p>
+                                  <ul className="text-xs text-gray-600 space-y-1">
+                                    {pricing.PricingBenefit?.slice(0, 3).map((benefit, idx) => (
+                                      <li key={idx} className="flex items-center gap-2">
+                                        <span className="text-green-500">✓</span>
+                                        {benefit.benefit}
+                                      </li>
+                                    ))}
+                                  </ul>
                                 </div>
-                                <p className="text-sm text-gray-600 mb-3">{pricing.deskripsi_paket}</p>
-                                <ul className="text-xs text-gray-600 space-y-1">
-                                  {pricing.PricingBenefit?.slice(0, 3).map((benefit, idx) => (
-                                    <li key={idx} className="flex items-center gap-2">
-                                      <span className="text-green-500">✓</span>
-                                      {benefit.benefit}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </DrawerContent>
@@ -780,15 +936,9 @@ const Checkout = () => {
                   <CardTitle>Ringkasan Pembayaran</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {selectedTemplate && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Template: {selectedTemplate.name}</span>
-                      <span>Rp {selectedTemplate.price.toLocaleString('id-ID')}</span>
-                    </div>
-                  )}
                   {selectedPricing && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Paket: {selectedPricing.paket}</span>
+                      <span className="text-gray-600">{selectedPricing.paket}</span>
                       <span>Rp {selectedPricing.harga_paket.toLocaleString('id-ID')}</span>
                     </div>
                   )}
