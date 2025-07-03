@@ -208,6 +208,81 @@ export type Database = {
         }
         Relationships: []
       }
+      midtrans_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          id: string
+          item_name: string
+          order_id: string
+          pricing_package_id: number | null
+          pricing_package_name: string | null
+          redirect_url: string | null
+          snap_token: string
+          status: string
+          template_id: string | null
+          template_name: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          id?: string
+          item_name: string
+          order_id: string
+          pricing_package_id?: number | null
+          pricing_package_name?: string | null
+          redirect_url?: string | null
+          snap_token: string
+          status?: string
+          template_id?: string | null
+          template_name?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          item_name?: string
+          order_id?: string
+          pricing_package_id?: number | null
+          pricing_package_name?: string | null
+          redirect_url?: string | null
+          snap_token?: string
+          status?: string
+          template_id?: string | null
+          template_name?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_pricing_package"
+            columns: ["pricing_package_id"]
+            isOneToOne: false
+            referencedRelation: "Pricing"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_template"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "Template"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Order: {
         Row: {
           createdAt: string
